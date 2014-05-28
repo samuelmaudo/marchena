@@ -1,0 +1,24 @@
+
+    <table class="calendar" border="1" cellpadding="5" cellspacing="0">
+      <tr>
+        <th colspan="7" class="month-name">{{ month_name }}</th>
+      </tr>
+      <tr>
+{% for abbr in day_abbreviations %}
+        <th class="day-name">{{ abbr }}</th>
+{% endfor %}
+      </tr>
+{% for week in month_calendar %}
+      <tr>
+  {% for day, post_list, archive_url in week %}
+    {% if not day %}
+        <td class="noday"></td>
+    {% elif post_list %}
+        <td class="day active"><a href="{{ archive_url }}"><strong>{{ day }}</strong></a></td>
+    {% else %}
+        <td class="day">{{ day }}</td>
+    {% endif %}
+  {% endfor %}
+      </tr>
+{% endfor %}
+    </table>

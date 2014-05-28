@@ -1,0 +1,83 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Samuel Maudo, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-12-11 17:49+0100\n"
+"PO-Revision-Date: 2012-12-11 17:54+0100\n"
+"Last-Translator: Samuel Maudo\n"
+"Language-Team: English <kde-i18n-doc@kde.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Lokalize 1.5\n"
+
+#: admin.py:24 admin.py:76
+msgid "Metadata"
+msgstr "Metadatos"
+
+#: admin.py:35
+msgid "Image"
+msgstr "Imagen"
+
+#: models.py:28
+msgid "name"
+msgstr "nombre"
+
+#: models.py:31
+msgid "description"
+msgstr "descripción"
+
+#: models.py:38
+msgid "category"
+msgstr "categoría"
+
+#: models.py:39 models.py:86
+msgid "categories"
+msgstr "categorías"
+
+#: models.py:57 models.py:103
+msgid "post"
+msgstr "entrada"
+
+#: models.py:61
+msgid "caption"
+msgstr "leyenda"
+
+#: models.py:66
+msgid "image"
+msgstr "imagen"
+
+#: models.py:67
+msgid "images"
+msgstr "imágenes"
+
+#: models.py:78
+msgid "title"
+msgstr "título"
+
+#: models.py:81
+msgid "content"
+msgstr "contenido"
+
+#: models.py:90
+msgid "featured post"
+msgstr "entrada destacada"
+
+#: models.py:96
+msgid "times viewed"
+msgstr "veces visto"
+
+#: models.py:104
+msgid "posts"
+msgstr "entradas"
+
+#: views.py:78
+msgid "No {verbose_name} found matching the query."
+msgstr "Ningún {verbose_name} coincide con la búsqueda."
+

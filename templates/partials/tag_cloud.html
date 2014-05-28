@@ -1,0 +1,8 @@
+
+    <ul class="{% if not tags %}no-{% endif %}tag-cloud">
+{% for tag in tags %}
+      <li>
+        <a href="{{ tag.get_absolute_url }}" style="font-size:{{ tag.score }}em">{{ tag }}</a>
+      </li>
+{% endfor %}
+    </ul>
