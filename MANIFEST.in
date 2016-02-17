@@ -1,0 +1,14 @@
+include LICENSE
+include MANIFEST.in
+include README.md
+recursive-include tests *
+recursive-include marchena/fixtures *
+recursive-include marchena/locale *
+recursive-include marchena/static *
+recursive-include marchena/templates *
+recursive-include marchena/apps/*/fixtures *
+recursive-include marchena/apps/*/locale *
+recursive-include marchena/apps/*/static *
+recursive-include marchena/apps/*/templates *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

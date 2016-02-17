@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{% load i18n %}
+<opml version="1.0">
+  <head>
+    <title>{% blocktrans with blog_title=blog.title %}Links for {{ blog_title }}{% endblocktrans %}</title>
+    <dateCreated>{% now 'D, d M Y H:i:s' %} GMT</dateCreated>
+  </head>
+  <body>
+{% for category in link_category_list %}
+    <outline type="category" title="{{ category.name }}">
+  {% for link in category.links.all %}
+    <outline text="{{ link.name }}" type="link" xmlUrl="{{ link.rss }}" htmlUrl="{{ link.url }}" updated="{{ link.last_modified|date:'Y-m-d H:i:s' }}" />
+  {% endfor %}
+    </outline>
+{% endfor %}
+  </body>
+</opml>

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+<!-- META TITLE -->
+{% block meta_title %}
+    <title>Archive | Marchena</title>
+{% endblock %}
+
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+      <li><a href="/">Home</a></li>
+      <li class="active">Archive</li>
+    </ol>
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+  {% block title %}
+    <div class="page-header">
+      <h1>Archive for {{ day|date:'N d, Y' }}</h1>
+    </div>
+  {% endblock %}
+    <article>
+      <p>
+        <ul class="list-unstyled">
+  {% for post in post_list %}
+          <li>{{ post.get_link }}</li>
+  {% endfor %}
+        </ul>
+      </p>
+      <hr>
+    </article>
+{% endblock %}

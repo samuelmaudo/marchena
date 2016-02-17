@@ -1,0 +1,24 @@
+
+{% if form %}
+    <div class="well">
+      <h4>Leave a Comment:</h4>
+      <form role="form">
+        <div class="form-group">
+          <textarea class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+{% endif %}
+
+{% for comment in comment_list %}
+    <h3>
+  {% if comment.get_author_url %}
+      <a href="{{ comment.get_author_url }}" rel="nofollow">{{ comment.get_author_name }}</a>
+  {% else %}
+      {{ comment.get_author_name }}
+  {% endif %}
+      <small>{{ comment.get_date|date:'g:i A' }} on {{ comment.get_date|time:'F j, Y' }}</small>
+    </h3>
+    {{ comment.get_content %}
+{% endfor %}

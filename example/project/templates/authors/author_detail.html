@@ -1,0 +1,36 @@
+{% extends 'marchena/post_list.html' %}
+
+<!-- META TITLE -->
+{% block meta_title %}
+    <title>{{ author }}'s posts{% if blog %} on {{ blog }}{% endif %} | Marchena</title>
+{% endblock %}
+
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+      <li><a href="/">Home</a></li>
+  {% if blog %}
+      <li><a href="{% url 'blog_list' %}">Blogs</a></li>
+      <li>{{ blog.get_link }}</li>
+      <li><a href="{% url 'author_list' blog_slug=blog.slug %}">Authors</a></li>
+  {% else %}
+      <li><a href="{% url 'author_list' %}">Authors</a></li>
+  {% endif %}
+      <li class="active">{{ author }}</li>
+    </ol>
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+    <div class="page-header">
+      <h1>
+        {{ author }}'s posts{% if blog %} on {{ blog }}{% endif %}
+        <small><a href="{{ author.get_feed_url }}"><span class="glyphicon glyphicon-bullhorn"></span></a></small>
+      </h1>
+    </div>
+    <ul class="list-unstyled">
+  {% for post in post_list %}
+      <li>{{ post.publish_from|date:'SHORT_DATE_FORMAT' }} | {{ post.get_link }}</li>
+  {% endfor %}
+    </ul>
+{% endblock %}

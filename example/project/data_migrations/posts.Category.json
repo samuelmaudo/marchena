@@ -1,0 +1,6 @@
+[
+{"id": 2, "meta_title": "", "meta_description": "", "meta_keywords": "", "slug": "edge-case", "image": "", "image_height": null, "image_width": null, "blog": 1, "name": "Edge Case", "description": "Posts that have edge-case related tests."},
+{"id": 3, "meta_title": "", "meta_description": "", "meta_keywords": "", "slug": "markup", "image": "", "image_height": null, "image_width": null, "blog": 1, "name": "Markup", "description": "Posts in this category test markup tags and styles."},
+{"id": 4, "meta_title": "", "meta_description": "", "meta_keywords": "", "slug": "template", "image": "", "image_height": null, "image_width": null, "blog": 1, "name": "Template", "description": ""},
+{"id": 1, "meta_title": "", "meta_description": "", "meta_keywords": "", "slug": "uncategorized", "image": "", "image_height": null, "image_width": null, "blog": 1, "name": "Uncategorized", "description": ""}
+]

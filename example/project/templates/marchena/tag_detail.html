@@ -1,0 +1,31 @@
+{% extends 'marchena/post_list.html' %}
+
+<!-- META TITLE -->
+{% block meta_title %}
+    <title>{{ tag }}{% if blog %} on {{ blog }}{% endif %} | Marchena</title>
+{% endblock %}
+
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+      <li><a href="/">Home</a></li>
+  {% if blog %}
+      <li><a href="{% url 'blog_list' %}">Blogs</a></li>
+      <li>{{ blog.get_link }}</li>
+      <li><a href="{% url 'tag_list' blog_slug=blog.slug %}">Tags</a></li>
+  {% else %}
+      <li><a href="{% url 'tag_list' %}">Tags</a></li>
+  {% endif %}
+      <li class="active">{{ tag }}</li>
+    </ol>
+{% endblock %}
+
+<!-- TITLE -->
+{% block title %}
+    <div class="page-header">
+      <h1>
+        {{ tag }}{% if blog %} on {{ blog }}{% endif %}
+        <small><a href="{{ tag.get_feed_url }}"><span class="glyphicon glyphicon-bullhorn"></span></a></small>
+      </h1>
+    </div>
+{% endblock %}

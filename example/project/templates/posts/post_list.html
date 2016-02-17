@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+<!-- LOADING -->
+{% load posts %}
+
+<!-- META TITLE -->
+{% block meta_title %}
+    <title>Posts | Marchena</title>
+{% endblock %}
+
+<!-- HEADER SCRIPTS -->
+{% block header_scripts %}
+  <style>
+    .btn-primary {
+      margin-top: 5px;
+    }
+  </style>
+{% endblock %}
+
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+      <li><a href="/">Home</a></li>
+      <li class="active">Posts</li>
+    </ol>
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+  {% block title %}
+    <div class="page-header">
+      <h1>
+        Posts
+        <small><a href="{% url 'post_feed' %}"><span class="glyphicon glyphicon-bullhorn"></span></a></small>
+      </h1>
+    </div>
+  {% endblock %}
+  {% for post in post_list %}
+      <article>
+        <h2>{{ post.get_link }}</h2>
+        <p><span class="glyphicon glyphicon-time"></span> Posted by {% post_authors ', ' ' and ' %} on {{ post.publish_from }}</p>
+        <hr>
+        {{ post.get_excerpt }}
+        <a class="btn btn-primary" href="{{ post.get_absolute_url }}">Read more <span class="glyphicon glyphicon-chevron-right"></span></a>
+      </article>
+      <hr>
+  {% endfor %}
+      <!-- pager -->
+      <ul class="pager">
+        <li class="previous"><a href="#">&larr; Older</a></li>
+        <li class="next"><a href="#">Newer &rarr;</a></li>
+      </ul>
+{% endblock %}
