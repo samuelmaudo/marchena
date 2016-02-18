@@ -1,8 +1,14 @@
 syntax:glob
 
+*.coverage
 *.egg-info
+*.kdev4
+*.old
 *.pot
 *.py[co]
+*.sqlite
 __pycache__
-MANIFEST
 backup/
+build/
+dist/
+htmlcov/

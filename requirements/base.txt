@@ -1,0 +1,8 @@
+Django<1.7
+django-grappelli<2.6
+django-mptt<0.8
+markdown2
+Pillow
+psycopg2
+pytz
+Wand
