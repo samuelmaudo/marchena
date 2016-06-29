@@ -90,7 +90,7 @@ class AbstractCategory(Illustrated, Slugged, MetaData):
 
 
 @python_2_unicode_compatible
-class AbstractPost(Displayable, Logged):
+class AbstractPost(Illustrated, Displayable, Logged):
 
     blog = fields.CachedForeignKey(
             'blogs.Blog',
@@ -142,18 +142,13 @@ class AbstractPost(Displayable, Logged):
 
     class Meta:
         abstract = True
+        folder_name = 'blog_posts'
         ordering = ['-publish_from']
         verbose_name = _('Post')
         verbose_name_plural = _('Posts')
 
-    _images = Undefined
-
     def __str__(self):
         return self.title
-
-    def save(self, **kwargs):
-        self._images = Undefined
-        super(AbstractPost, self).save(**kwargs)
 
     def get_absolute_url(self):
         #post_date = self.get_publish_date()
@@ -233,22 +228,6 @@ class AbstractPost(Displayable, Logged):
             return mark_safe(self.excerpt_html)
     get_excerpt.short_description = _('Excerpt')
 
-    def get_images(self):
-        if self._images is Undefined:
-            self._images = [
-                img.image
-                for img
-                in self.images.all()
-                if img.image
-            ]
-        return self._images
-
-    def get_main_image(self):
-        if self.get_images():
-            return self.get_images()[0]
-        else:
-            return None
-
     def get_next_in_order(self, user=None, same_blog=True):
         qs = self._default_manager.published(user)
         qs = qs.filter(publish_from__gt=self.publish_from)
@@ -274,29 +253,6 @@ class AbstractPost(Displayable, Logged):
     @staticmethod
     def autocomplete_search_fields():
         return ('title__icontains', )
-
-
-class AbstractPostImage(Orderable, Illustrated):
-
-    post = models.ForeignKey(
-            'Post',
-            related_name='images',
-            verbose_name=_('Post'))
-    caption = fields.CharField(
-            max_length=127,
-            blank=True,
-            verbose_name=_('Caption'))
-
-    class Meta:
-        abstract = True
-        folder_name = 'blog_posts'
-        order_with_respect_to = 'post'
-        verbose_name = _('Post Image')
-        verbose_name_plural = _('Post Images')
-
-    def get_upload_path(self, filename):
-        filename = self.post.slug.replace('-', '_')
-        return super(AbstractPostImage, self).get_upload_path(filename)
 
 
 @python_2_unicode_compatible

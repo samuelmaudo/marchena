@@ -56,7 +56,7 @@ class PostListView(ListView):
     def get_queryset(self):
         qs = super(PostListView, self).get_queryset()
         qs = qs.published(self.request.user)
-        qs = qs.prefetch_related('authors', 'categories', 'images', 'tags')
+        qs = qs.prefetch_related('authors', 'categories', 'tags')
         return qs
 
 

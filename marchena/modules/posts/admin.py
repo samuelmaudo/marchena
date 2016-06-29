@@ -18,7 +18,6 @@ from marchena.admin import BlogModelAdmin
 
 Category = get_model('posts', 'Category')
 Post = get_model('posts', 'Post')
-PostImage = get_model('posts', 'PostImage')
 Tag = get_model('posts', 'Tag')
 
 
@@ -87,19 +86,6 @@ class CategoryAdmin(CategoryMixin, BlogModelAdmin):
     pass
 
 
-class PostImageInline(admin.TabularInline):
-
-    classes = ['grp-collapse', 'grp-closed']
-    formfield_overrides = {
-        models.PositiveIntegerField: {
-            'widget': forms.HiddenInput
-        },
-    }
-    extra = 0
-    model = PostImage
-    sortable_field_name = 'index'
-
-
 class PostMixin(object):
 
     autocomplete_lookup_fields = {
@@ -126,6 +112,15 @@ class PostMixin(object):
             'fields': [
                 'blog',
             ]
+        }),
+        (_('Image'), {
+            'classes': [
+                'grp-collapse',
+                'grp-closed',
+            ],
+            'fields': [
+                'image',
+            ],
         }),
         (_('Metadata'), {
             'classes': [
@@ -170,7 +165,6 @@ class PostMixin(object):
             ]
         }),
     ]
-    inlines = [PostImageInline]
     list_display = [
         'title',
         'admin_authors',

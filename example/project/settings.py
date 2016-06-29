@@ -27,7 +27,7 @@ INSTALLED_APPS = (
     #'debug_toolbar',
     'mptt',
     'yepes',
-    'yepes.contrib.data_migrations',
+    'yepes.contrib.datamigrations',
     'yepes.contrib.registry',
     'yepes.contrib.sitemaps',
     'yepes.contrib.thumbnails',
