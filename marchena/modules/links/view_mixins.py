@@ -11,7 +11,6 @@ from yepes.loading import get_model
 from yepes.types import Undefined
 
 LinkCategory = get_model('links', 'LinkCategory')
-LinkCategoryManager = LinkCategory._default_manager
 
 
 class LinkCategoryMixin(object):
@@ -43,9 +42,9 @@ class LinkCategoryMixin(object):
 
             try:
                 if category_pk:
-                    category = LinkCategoryManager.get(pk=category_pk)
+                    category = LinkCategory.objects.get(pk=category_pk)
                 elif category_slug:
-                    category = LinkCategoryManager.get(slug=category_slug)
+                    category = LinkCategory.objects.get(slug=category_slug)
             except LinkCategory.DoesNotExist:
                 msg = _('No {verbose_name} found matching the query.')
                 kwargs = {'verbose_name': LinkCategory._meta.verbose_name}

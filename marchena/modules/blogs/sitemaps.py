@@ -6,7 +6,6 @@ from yepes.contrib.sitemaps import FullUrlSitemap
 from yepes.loading import get_model
 
 Blog = get_model('blogs', 'Blog')
-BlogManager = Blog._default_manager
 
 
 class BlogSitemap(FullUrlSitemap):
@@ -15,7 +14,7 @@ class BlogSitemap(FullUrlSitemap):
     priority = 0.7
 
     def items(self):
-        qs = BlogManager.order_by('-pk')
+        qs = Blog.objects.order_by('-pk')
         if self.limit:
             qs = qs[:self.limit]
         return qs.iterator()

@@ -11,9 +11,7 @@ from yepes.loading import get_model
 from yepes.types import Undefined
 
 Category = get_model('posts', 'Category')
-CategoryManager = Category._default_manager
 Tag = get_model('posts', 'Tag')
-TagManager = Tag._default_manager
 
 
 class CategoryMixin(object):
@@ -45,9 +43,9 @@ class CategoryMixin(object):
 
             try:
                 if category_pk:
-                    category = CategoryManager.get(pk=category_pk)
+                    category = Category.objects.get(pk=category_pk)
                 elif category_slug:
-                    category = CategoryManager.get(slug=category_slug)
+                    category = Category.objects.get(slug=category_slug)
             except Category.DoesNotExist:
                 msg = _('No {verbose_name} found matching the query.')
                 kwargs = {'verbose_name': Category._meta.verbose_name}
@@ -103,9 +101,9 @@ class TagMixin(object):
 
             try:
                 if tag_pk:
-                    tag = TagManager.get(pk=tag_pk)
+                    tag = Tag.objects.get(pk=tag_pk)
                 elif tag_slug:
-                    tag = TagManager.get(slug=tag_slug)
+                    tag = Tag.objects.get(slug=tag_slug)
             except Tag.DoesNotExist:
                 msg = _('No {verbose_name} found matching the query.')
                 kwargs = {'verbose_name': Tag._meta.verbose_name}

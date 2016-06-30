@@ -9,11 +9,8 @@ from yepes.contrib.sitemaps import FullUrlSitemap
 from yepes.loading import get_model
 
 Category = get_model('posts', 'Category')
-CategoryManager = Category._default_manager
 Post = get_model('posts', 'Post')
-PostManager = Post._default_manager
 Tag = get_model('posts', 'Tag')
-TagManager = Tag._default_manager
 
 
 class CategorySitemap(FullUrlSitemap):
@@ -26,7 +23,7 @@ class CategorySitemap(FullUrlSitemap):
         self.blog_slug = blog_slug
 
     def items(self):
-        qs = CategoryManager.order_by('-pk')
+        qs = Category.objects.order_by('-pk')
         if self.blog_pk is not None:
             qs = qs.filter(blog_id=self.blog_pk)
         elif self.blog_slug is not None:
@@ -72,7 +69,7 @@ class NewsSitemap(FullUrlSitemap):
         return urls
 
     def items(self):
-        qs = PostManager.order_by('-publish_from')
+        qs = Post.objects.order_by('-publish_from')
         qs = qs.published()
         if self.blog_pk is not None:
             qs = qs.filter(blog_id=self.blog_pk)
@@ -113,7 +110,7 @@ class PostSitemap(FullUrlSitemap):
         self.blog_slug = blog_slug
 
     def items(self):
-        qs = PostManager.order_by('-publish_from')
+        qs = Post.objects.order_by('-publish_from')
         qs = qs.published()
         if self.blog_pk is not None:
             qs = qs.filter(blog_id=self.blog_pk)
@@ -133,7 +130,7 @@ class TagSitemap(FullUrlSitemap):
     priority = 0.3
 
     def items(self):
-        qs = TagManager.order_by('-pk')
+        qs = Tag.objects.order_by('-pk')
         if self.limit:
             qs = qs[:self.limit]
         return qs.iterator()

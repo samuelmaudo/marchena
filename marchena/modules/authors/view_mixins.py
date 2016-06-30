@@ -11,7 +11,6 @@ from yepes.loading import get_model
 from yepes.types import Undefined
 
 Author = get_model('authors', 'Author')
-AuthorManager = Author._default_manager
 
 
 class AuthorMixin(object):
@@ -41,7 +40,7 @@ class AuthorMixin(object):
                     author_name = (self.request.GET.get('author')
                                    or self.request.GET.get('a'))
 
-            authors = AuthorManager.filter(is_active=True)
+            authors = Author.objects.filter(is_active=True)
             try:
                 if author_pk:
                     author = authors.get(pk=author_pk)
