@@ -23,7 +23,6 @@ class PostDetailView(AuthorMixin, BlogMixin, CategoryMixin, TagMixin, DetailView
     """
     author_field = 'authors'
     category_field = 'categories'
-    guid_url_kwarg = 'post_guid'
     model = Post
     pk_url_kwarg = 'post_pk'
     require_author = False
