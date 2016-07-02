@@ -2,14 +2,14 @@
 
 from __future__ import unicode_literals
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.views import ListView
 
 from marchena.modules.blogs.view_mixins import BlogMixin
 from marchena.modules.links.view_mixins import LinkCategoryMixin
 
-Link = get_model('links', 'Link')
-LinkCategory = get_model('links', 'LinkCategory')
+Link = apps.get_model('links', 'Link')
+LinkCategory = apps.get_model('links', 'LinkCategory')
 
 
 class LinksOpmlView(BlogMixin, LinkCategoryMixin, ListView):

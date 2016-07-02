@@ -11,12 +11,12 @@ from django.views.generic import (
     YearArchiveView,
 )
 
-from yepes.loading import get_class, get_model
+from yepes.apps import apps
 from yepes.view_mixins import CacheMixin
 
-BlogMixin = get_class('blogs.view_mixins', 'BlogMixin')
+BlogMixin = apps.get_class('blogs.view_mixins', 'BlogMixin')
 
-Post = get_model('posts', 'Post')
+Post = apps.get_model('posts', 'Post')
 
 
 class PostArchiveIndexView(BlogMixin, CacheMixin, ArchiveIndexView):

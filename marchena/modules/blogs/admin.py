@@ -6,9 +6,9 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import admin
-from yepes.loading import get_model
+from yepes.apps import apps
 
-Blog = get_model('blogs', 'Blog')
+Blog = apps.get_model('blogs', 'Blog')
 
 
 class BlogAdmin(admin.ModelAdmin):

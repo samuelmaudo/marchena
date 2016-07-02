@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import Truncator
@@ -10,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from yepes import fields
 from yepes.cache import LookupTable
+from yepes.conf import settings
 from yepes.contrib.registry import registry
 from yepes.model_mixins import (
     Logged,
@@ -37,7 +37,7 @@ class AbstractComment(Nestable, Logged):
             verbose_name=_('Parent comment'))
 
     user = models.ForeignKey(
-            get_user_model(),
+            settings.AUTH_USER_MODEL,
             null=True,
             related_name='comments',
             verbose_name=_('User'))

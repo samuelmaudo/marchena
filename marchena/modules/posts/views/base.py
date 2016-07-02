@@ -2,19 +2,19 @@
 
 from __future__ import unicode_literals
 
-from yepes.loading import get_class, get_model
+from yepes.apps import apps
 from yepes.views import DetailView, ListView
 
 from marchena.modules.posts.signals import post_viewed, post_search
 
-AuthorMixin = get_class('authors.view_mixins', 'AuthorMixin')
-BlogMixin = get_class('blogs.view_mixins', 'BlogMixin')
-CategoryMixin = get_class('posts.view_mixins', 'CategoryMixin')
-TagMixin = get_class('posts.view_mixins', 'TagMixin')
+AuthorMixin = apps.get_class('authors.view_mixins', 'AuthorMixin')
+BlogMixin = apps.get_class('blogs.view_mixins', 'BlogMixin')
+CategoryMixin = apps.get_class('posts.view_mixins', 'CategoryMixin')
+TagMixin = apps.get_class('posts.view_mixins', 'TagMixin')
 
-Category = get_model('posts', 'Category')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Category = apps.get_model('posts', 'Category')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 
 class PostDetailView(AuthorMixin, BlogMixin, CategoryMixin, TagMixin, DetailView):

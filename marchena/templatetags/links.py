@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 
 from django.template.base import Library
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.template import AssignTag, MultipleObjectMixin, SingleObjectMixin
 
-Link = get_model('links', 'Link')
-LinkCategory = get_model('links', 'LinkCategory')
+Link = apps.get_model('links', 'Link')
+LinkCategory = apps.get_model('links', 'LinkCategory')
 
 register = Library()
 

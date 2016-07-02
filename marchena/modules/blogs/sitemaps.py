@@ -2,10 +2,10 @@
 
 from __future__ import unicode_literals
 
+from yepes.apps import apps
 from yepes.contrib.sitemaps import FullUrlSitemap
-from yepes.loading import get_model
 
-Blog = get_model('blogs', 'Blog')
+Blog = apps.get_model('blogs', 'Blog')
 
 
 class BlogSitemap(FullUrlSitemap):

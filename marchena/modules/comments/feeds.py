@@ -8,10 +8,10 @@ from django.http import Http404
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import ugettext as _
 
-from yepes.loading import get_model
+from yepes.apps import apps
 
-Blog = get_model('blogs', 'Blog')
-Post = get_model('posts', 'Post')
+Blog = apps.get_model('blogs', 'Blog')
+Post = apps.get_model('posts', 'Post')
 
 
 class CommentRssFeed(Feed):

@@ -6,7 +6,7 @@ from copy import deepcopy
 from functools import update_wrapper
 
 from django.conf.urls import patterns, url, include
-from django.contrib.admin.util import quote
+from django.contrib.admin.utils import quote
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.contenttypes import views as contenttype_views
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -18,28 +18,28 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
 from yepes import admin
+from yepes.apps import apps
 from yepes.conf import settings
-from yepes.loading import get_class, get_model
 
 from marchena.admin import BlogModelAdmin
 
-AuthorMixin = get_class('authors.admin', 'AuthorMixin')
-CategoryMixin = get_class('posts.admin', 'CategoryMixin')
-CommentMixin = get_class('comments.admin', 'CommentMixin')
-LinkMixin = get_class('links.admin', 'LinkMixin')
-LinkCategoryMixin = get_class('links.admin', 'LinkCategoryMixin')
-PostMixin = get_class('posts.admin', 'PostMixin')
-TagMixin = get_class('posts.admin', 'TagMixin')
+AuthorMixin = apps.get_class('authors.admin', 'AuthorMixin')
+CategoryMixin = apps.get_class('posts.admin', 'CategoryMixin')
+CommentMixin = apps.get_class('comments.admin', 'CommentMixin')
+LinkMixin = apps.get_class('links.admin', 'LinkMixin')
+LinkCategoryMixin = apps.get_class('links.admin', 'LinkCategoryMixin')
+PostMixin = apps.get_class('posts.admin', 'PostMixin')
+TagMixin = apps.get_class('posts.admin', 'TagMixin')
 
-Author = get_model('authors', 'Author')
-Blog = get_model('blogs', 'Blog')
+Author = apps.get_model('authors', 'Author')
+Blog = apps.get_model('blogs', 'Blog')
 BlogManager = Blog._default_manager
-Category = get_model('posts', 'Category')
-Comment = get_model('comments', 'Comment')
-Link = get_model('links', 'Link')
-LinkCategory = get_model('links', 'LinkCategory')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Category = apps.get_model('posts', 'Category')
+Comment = apps.get_model('comments', 'Comment')
+Link = apps.get_model('links', 'Link')
+LinkCategory = apps.get_model('links', 'LinkCategory')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 
 class DeskSite(admin.AdminSite):

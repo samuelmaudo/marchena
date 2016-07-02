@@ -7,10 +7,10 @@ from django.http import Http404
 from django.utils import six
 from django.utils.translation import ugettext as _
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.types import Undefined
 
-LinkCategory = get_model('links', 'LinkCategory')
+LinkCategory = apps.get_model('links', 'LinkCategory')
 
 
 class LinkCategoryMixin(object):

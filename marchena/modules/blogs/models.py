@@ -1,7 +1,10 @@
 # -*- coding:utf-8 -*-
 
-from marchena.modules.blogs.abstract_models import AbstractBlog
+from yepes.apps import apps
+
+AbstractBlog = apps.get_class('blogs.abstract_models', 'AbstractBlog')
 
 
 class Blog(AbstractBlog):
     pass
+

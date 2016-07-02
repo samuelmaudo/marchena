@@ -6,13 +6,13 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from yepes.apps import apps
 from yepes.contrib.sitemaps.views import SitemapView
-from yepes.loading import get_class
 
-CategorySitemap = get_class('posts.sitemaps', 'CategorySitemap')
-NewsSitemap = get_class('posts.sitemaps', 'NewsSitemap')
-PostSitemap = get_class('posts.sitemaps', 'PostSitemap')
-TagSitemap = get_class('posts.sitemaps', 'TagSitemap')
+CategorySitemap = apps.get_class('posts.sitemaps', 'CategorySitemap')
+NewsSitemap = apps.get_class('posts.sitemaps', 'NewsSitemap')
+PostSitemap = apps.get_class('posts.sitemaps', 'PostSitemap')
+TagSitemap = apps.get_class('posts.sitemaps', 'TagSitemap')
 
 
 class CategorySitemapView(SitemapView):

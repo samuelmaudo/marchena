@@ -4,10 +4,10 @@ from __future__ import unicode_literals
 
 from django.template.base import Library
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.template import AssignTag, MultipleObjectMixin, SingleObjectMixin
 
-Author = get_model('authors', 'Author')
+Author = apps.get_model('authors', 'Author')
 
 register = Library()
 

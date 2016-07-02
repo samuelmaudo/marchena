@@ -5,11 +5,11 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import admin
-from yepes.loading import get_model
+from yepes.apps import apps
 
 from marchena.admin import BlogModelAdmin
 
-Author = get_model('authors', 'Author')
+Author = apps.get_model('authors', 'Author')
 
 
 class AuthorMixin(object):

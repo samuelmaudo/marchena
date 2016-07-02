@@ -2,14 +2,14 @@
 
 from __future__ import unicode_literals
 
-from yepes.loading import get_class, get_model
+from yepes.apps import apps
 from yepes.views import ListView
 
-AuthorMixin = get_class('authors.view_mixins', 'AuthorMixin')
-BlogMixin = get_class('blogs.view_mixins', 'BlogMixin')
-PostListView = get_class('posts.views', 'PostListView')
+AuthorMixin = apps.get_class('authors.view_mixins', 'AuthorMixin')
+BlogMixin = apps.get_class('blogs.view_mixins', 'BlogMixin')
+PostListView = apps.get_class('posts.views', 'PostListView')
 
-Author = get_model('authors', 'Author')
+Author = apps.get_model('authors', 'Author')
 
 
 class AuthorDetailView(AuthorMixin, BlogMixin, PostListView):

@@ -12,14 +12,14 @@ from django.template.defaultfilters import date as date_format
 from django.utils import six
 from django.utils import timezone
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.template import AssignTag, InclusionTag, SingleTag
 from yepes.template import MultipleObjectMixin, SingleObjectMixin
 
-Author = get_model('authors', 'Author')
-Category = get_model('posts', 'Category')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Author = apps.get_model('authors', 'Author')
+Category = apps.get_model('posts', 'Category')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 register = Library()
 

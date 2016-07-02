@@ -7,12 +7,12 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import admin
-from yepes.loading import get_model
+from yepes.apps import apps
 
 from marchena.admin import BlogModelAdmin
 
-Comment = get_model('comments', 'Comment')
-CommentStatus = get_model('comments', 'CommentStatus')
+Comment = apps.get_model('comments', 'Comment')
+CommentStatus = apps.get_model('comments', 'CommentStatus')
 
 
 class CommentMixin(object):

@@ -8,9 +8,9 @@ from django.conf.urls import patterns, url, include
 from django.utils.http import urlencode
 
 from yepes import admin
-from yepes.loading import get_model
+from yepes.apps import apps
 
-Blog = get_model('blogs', 'Blog')
+Blog = apps.get_model('blogs', 'Blog')
 BlogManager = Blog._default_manager
 
 

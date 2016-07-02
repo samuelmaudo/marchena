@@ -7,10 +7,10 @@ from django.http import Http404
 from django.utils import six
 from django.utils.translation import ugettext as _
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.types import Undefined
 
-Blog = get_model('blogs', 'Blog')
+Blog = apps.get_model('blogs', 'Blog')
 
 
 class BlogMixin(object):

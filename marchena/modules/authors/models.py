@@ -1,18 +1,21 @@
 # -*- coding:utf-8 -*-
 
 from django.core.urlresolvers import reverse
-from django.contrib.auth import get_user_model
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from yepes.apps import apps
+from yepes.conf import settings
 from yepes.urlresolvers import build_full_url, full_reverse
 
 from marchena.modules.authors.managers import AuthorManager
 
+User = apps.get_registered_model(*settings.AUTH_USER_MODEL.split('.'))
+
 
 @python_2_unicode_compatible
-class Author(get_user_model()):
+class Author(User):
 
     objects = AuthorManager()
 

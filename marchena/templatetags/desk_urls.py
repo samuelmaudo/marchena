@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.admin.options import IS_POPUP_VAR
-from django.contrib.admin.util import quote
+from django.contrib.admin.utils import quote
 from django.core.urlresolvers import resolve, Resolver404
 from django import template
 from django.utils.http import urlencode

@@ -7,11 +7,11 @@ from django.http import Http404
 from django.utils import six
 from django.utils.translation import ugettext as _
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.types import Undefined
 
-Category = get_model('posts', 'Category')
-Tag = get_model('posts', 'Tag')
+Category = apps.get_model('posts', 'Category')
+Tag = apps.get_model('posts', 'Tag')
 
 
 class CategoryMixin(object):
