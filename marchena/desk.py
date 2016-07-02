@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from copy import deepcopy
 from functools import update_wrapper
 
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 from django.contrib.admin.utils import quote
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.contenttypes import views as contenttype_views
@@ -124,11 +124,11 @@ class DeskSite(admin.AdminSite):
         """
         urlpatterns = []
         for model, model_admin in six.iteritems(self._registry):
-            urlpatterns += patterns('',
+            urlpatterns += [
                 url(r'^(?P<blog_slug>[a-z\-]+)/{0}/'.format(
                                     model._meta.module_name),
                     include(model_admin.urls)),
-            )
+            ]
         return urlpatterns
 
     def get_site_urls(self):
@@ -140,7 +140,7 @@ class DeskSite(admin.AdminSite):
                 return self.admin_view(view, cacheable)(*args, **kwargs)
             return update_wrapper(wrapper, view)
 
-        return patterns('',
+        return [
             url(r'^$',
                 wrap(self.index),
                 name='index'),
@@ -161,7 +161,8 @@ class DeskSite(admin.AdminSite):
                 name='view_on_site'),
             url(r'^(?P<app_label>[a-z\-]+)/$',
                 wrap(self.app_index),
-                name='app_list'))
+                name='app_list'),
+        ]
 
     def get_urls(self):
         if settings.DEBUG:

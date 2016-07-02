@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
 from yepes.apps import apps
 from yepes.contrib.sitemaps.views import SitemapIndexView
@@ -48,7 +48,7 @@ PostSitemapView = apps.get_class('posts.views.sitemaps', 'PostSitemapView')
 TagSitemapView = apps.get_class('posts.views.sitemaps', 'TagSitemapView')
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$',
         PostListView.as_view(),
         name='post_list',
@@ -202,4 +202,4 @@ urlpatterns = patterns('',
         TagPostsRssFeed(),
         name='post_feed',
     ),
-)
+]

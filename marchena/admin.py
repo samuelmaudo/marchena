@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from functools import update_wrapper
 
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url
 from django.utils.http import urlencode
 
 from yepes import admin
@@ -74,7 +74,7 @@ class BlogModelAdmin(admin.ModelAdmin):
 
         info = (self.model._meta.app_label, self.model._meta.module_name)
 
-        urlpatterns = patterns('',
+        urlpatterns = [
             url(r'^$',
                 wrap(self.changelist_view),
                 name='{0}_{1}_changelist'.format(*info),
@@ -95,6 +95,6 @@ class BlogModelAdmin(admin.ModelAdmin):
                 wrap(self.change_view),
                 name='{0}_{1}_change'.format(*info),
             ),
-        )
+        ]
         return urlpatterns
 
