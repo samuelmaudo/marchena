@@ -44,8 +44,8 @@ Tag = apps.get_model('posts', 'Tag')
 
 class DeskSite(admin.AdminSite):
 
-    def __init__(self, name='desk', app_name='desk'):
-        super(DeskSite, self).__init__(name, app_name)
+    def __init__(self, name='desk'):
+        super(DeskSite, self).__init__(name)
 
     def app_index(self, request, app_label, extra_context=None):
         user = request.user
@@ -126,7 +126,7 @@ class DeskSite(admin.AdminSite):
         for model, model_admin in six.iteritems(self._registry):
             urlpatterns += [
                 url(r'^(?P<blog_slug>[a-z\-]+)/{0}/'.format(
-                                    model._meta.module_name),
+                                    model._meta.model_name),
                     include(model_admin.urls)),
             ]
         return urlpatterns

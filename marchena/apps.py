@@ -6,6 +6,6 @@ from django.apps import AppConfig
 
 
 class MarchenaConfig(AppConfig):
-    name = 'sabicas'
-    verbose_name = 'Sabicas'
+    name = 'marchena'
+    verbose_name = 'Marchena'
 
