@@ -19,17 +19,12 @@ class BlogDetailView(BlogMixin, PostListView):
 
     def get_template_names(self):
         names = super(BlogDetailView, self).get_template_names()
-        model = self.get_model()
-        if model is not None:
-            blog = self.get_blog()
-            args = (
-                model._meta.app_label,
-                blog.slug.replace('-', '_'),
+        blog = self.get_blog()
+        if blog is not None:
+            names.insert(-1, '{0}/{1}_detail.html'.format(
+                blog._meta.app_label,
                 blog._meta.model_name,
-            )
-            names.insert(-2, '{0}/{1}/{2}_detail.html'.format(*args))
-            names.insert(-1, '{0}/{2}_detail.html'.format(*args))
-
+            ))
         return names
 
 
@@ -40,5 +35,9 @@ class BlogListView(ListView):
     model = Blog
 
     def get_queryset(self):
-        return self.model.cache.all()
+        model = self.get_model()
+        try:
+            return model.cache.all()
+        except AttributeError:
+            return super(BlogListView, self).get_queryset()
 
