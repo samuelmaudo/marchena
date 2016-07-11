@@ -129,7 +129,7 @@ class GetCategoryTag(SingleObjectMixin, AssignTag):
         if not blog:
             return None
         qs = self.get_queryset()
-        qs = qs.filter(id=blog.pk)
+        qs = qs.filter(blog=blog)
         return self.get_object(qs, category_slug)
 
 register.tag('get_category', GetCategoryTag.as_tag())
@@ -148,7 +148,7 @@ class GetCategoriesTag(MultipleObjectMixin, AssignTag):
         if not blog:
             return []
         qs = self.get_queryset()
-        qs = qs.filter(id=blog.pk)
+        qs = qs.filter(blog=blog)
         return self.get_object_list(qs, category_slugs)
 
 register.tag('get_categories', GetCategoriesTag.as_tag())
