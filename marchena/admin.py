@@ -48,7 +48,7 @@ class BlogModelAdmin(admin.ModelAdmin):
             changelist_url = '{0}:{1}_{2}_changelist'.format(
                     self.admin_site.name,
                     self.opts.app_label,
-                    self.opts.module_name)
+                    self.opts.model_name)
             if current_url == changelist_url:
                 preserved_filters = request.GET.urlencode()
             else:
