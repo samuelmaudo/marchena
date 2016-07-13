@@ -49,6 +49,8 @@ class DeskSite(admin.AdminSite):
         super(DeskSite, self).__init__(name)
 
     def app_index(self, request, app_label, extra_context=None):
+        request.current_app = self.name
+
         user = request.user
         blogs = BlogManager
         if not user.is_superuser:
@@ -119,7 +121,7 @@ class DeskSite(admin.AdminSite):
         return TemplateResponse(request, self.app_index_template or [
             'desk/app_index.html',
             'admin/app_index.html',
-        ], context, current_app=self.name)
+        ], context)
 
     def get_model_urls(self):
         """
@@ -182,6 +184,8 @@ class DeskSite(admin.AdminSite):
         Displays the main admin index page, which lists all of the installed
         apps that have been registered in this site.
         """
+        request.current_app = self.name
+
         user = request.user
         blogs = BlogManager.get_queryset()
         if not user.is_superuser:
@@ -248,7 +252,7 @@ class DeskSite(admin.AdminSite):
         return TemplateResponse(request, self.index_template or [
             'desk/index.html',
             'admin/index.html',
-        ], context, current_app=self.name)
+        ], context)
 
 desk_site = DeskSite()
 
