@@ -7,7 +7,6 @@ PROJECT_ROOT = os.path.normpath(
                    os.path.realpath(__file__)))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -138,7 +137,6 @@ MIDDLEWARE_CLASSES = (
 
 # Security settings
 ALLOWED_HOSTS = ['localhost']
-ALLOWED_INCLUDE_ROOTS = [PROJECT_ROOT]
 X_FRAME_OPTIONS = 'DENY'
 
 # Sessions settings.
@@ -166,6 +164,9 @@ TEMPLATES = [{
         os.path.join(PROJECT_ROOT, 'templates'),
     ],
     'OPTIONS': {
+        'allowed_include_roots': [
+            PROJECT_ROOT,
+        ],
         'context_processors': [
             'django.template.context_processors.i18n',
             'django.template.context_processors.media',
