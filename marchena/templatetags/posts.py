@@ -7,7 +7,7 @@ from datetime import datetime
 
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-from django.template.base import Library
+from django.template import Library
 from django.template.defaultfilters import date as date_format
 from django.utils import six
 from django.utils import timezone
