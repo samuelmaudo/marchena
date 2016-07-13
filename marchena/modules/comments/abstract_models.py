@@ -53,9 +53,11 @@ class AbstractComment(Nestable, Logged):
             blank=True,
             max_length=127,
             verbose_name=_("Author's URL"))
-    ip_address = models.IPAddressField(
+    ip_address = models.GenericIPAddressField(
             blank=True,
             null=True,
+            protocol='both',
+            unpack_ipv4=True,
             verbose_name=_('IP address'))
 
     karma = models.IntegerField(
