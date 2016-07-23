@@ -11,7 +11,6 @@ from yepes import admin
 from yepes.apps import apps
 
 Blog = apps.get_model('blogs', 'Blog')
-BlogManager = Blog._default_manager
 
 
 class BlogModelAdmin(admin.ModelAdmin):
@@ -22,7 +21,7 @@ class BlogModelAdmin(admin.ModelAdmin):
         formfield = super(BlogModelAdmin, self).formfield_for_dbfield(db_field, **kwargs)
         if db_field.name == 'blog':
             user = kwargs['request'].user
-            blogs = BlogManager.filter(authors=user)
+            blogs = Blog.objects.filter(authors=user)
             try:
                 formfield.initial = blogs[0]
             except IndexError:

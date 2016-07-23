@@ -213,6 +213,7 @@ class AbstractCommentStatus(Orderable):
             help_text=_('The content of this field will replace the text of'
                         ' the user comments. E.g.: "Inappropriate comment."'))
 
+    objects = models.Manager()
     cache = LookupTable(
             indexed_fields=['api_id'],
             default_registry_key='marchena:COMMENTS_INITIAL_STATUS')

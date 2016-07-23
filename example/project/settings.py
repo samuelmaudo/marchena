@@ -164,9 +164,6 @@ TEMPLATES = [{
         os.path.join(PROJECT_ROOT, 'templates'),
     ],
     'OPTIONS': {
-        'allowed_include_roots': [
-            PROJECT_ROOT,
-        ],
         'context_processors': [
             'django.template.context_processors.i18n',
             'django.template.context_processors.media',

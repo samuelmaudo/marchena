@@ -229,7 +229,7 @@ class AbstractPost(Illustrated, Displayable, Logged):
     get_excerpt.short_description = _('Excerpt')
 
     def get_next_in_order(self, user=None, same_blog=True):
-        qs = self._default_manager.published(user)
+        qs = self.__class__._default_manager.published(user)
         qs = qs.filter(publish_from__gt=self.publish_from)
         if same_blog:
             qs = qs.filter(blog_id=self.blog_id)
@@ -237,7 +237,7 @@ class AbstractPost(Illustrated, Displayable, Logged):
         return qs.first()
 
     def get_previous_in_order(self, user=None, same_blog=True):
-        qs = self._default_manager.published(user)
+        qs = self.__class__._default_manager.published(user)
         qs = qs.filter(publish_from__lt=self.publish_from)
         if same_blog:
             qs = qs.filter(blog_id=self.blog_id)

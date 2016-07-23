@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from copy import deepcopy
 from functools import update_wrapper
 
+from django import VERSION as DJANGO_VERSION
 from django.conf.urls import url, include
 from django.contrib.admin.utils import quote
 from django.contrib.admin.views.main import ChangeList
@@ -34,7 +35,6 @@ TagMixin = apps.get_class('posts.admin', 'TagMixin')
 
 Author = apps.get_model('authors', 'Author')
 Blog = apps.get_model('blogs', 'Blog')
-BlogManager = Blog._default_manager
 Category = apps.get_model('posts', 'Category')
 Comment = apps.get_model('comments', 'Comment')
 Link = apps.get_model('links', 'Link')
@@ -52,7 +52,7 @@ class DeskSite(admin.AdminSite):
         request.current_app = self.name
 
         user = request.user
-        blogs = BlogManager
+        blogs = Blog.objects.all()
         if not user.is_superuser:
             blogs = blogs.filter(authors=user)
 
@@ -64,7 +64,7 @@ class DeskSite(admin.AdminSite):
         app_dict = {}
         for model, model_admin in self._registry.items():
             app_label = model._meta.app_label
-            has_module_perms = user.has_module_perms(app_label)
+            has_module_perms = model_admin.has_module_permission(request)
             if not has_module_perms:
                 continue
 
@@ -113,11 +113,14 @@ class DeskSite(admin.AdminSite):
         # Sort the models alphabetically within each app.
         app_dict['models'].sort(key=lambda x: x['name'])
 
-        context = {
+        context = self.each_context(request)
+        context.update({
             'title': _("{0}'s desk").format(blog.title),
             'app_list': [app_dict],
-        }
-        context.update(extra_context or {})
+        })
+        if extra_context:
+            context.update(extra_context)
+
         return TemplateResponse(request, self.app_index_template or [
             'desk/app_index.html',
             'admin/app_index.html',
@@ -145,6 +148,7 @@ class DeskSite(admin.AdminSite):
         def wrap(view, cacheable=False):
             def wrapper(*args, **kwargs):
                 return self.admin_view(view, cacheable)(*args, **kwargs)
+            wrapper.admin_site = self
             return update_wrapper(wrapper, view)
 
         return [
@@ -172,7 +176,7 @@ class DeskSite(admin.AdminSite):
         ]
 
     def get_urls(self):
-        if settings.DEBUG:
+        if settings.DEBUG and DJANGO_VERSION < (1, 10):
             self.check_dependencies()
         urlpatterns = self.get_site_urls()
         urlpatterns.extend(self.get_model_urls())
@@ -187,7 +191,7 @@ class DeskSite(admin.AdminSite):
         request.current_app = self.name
 
         user = request.user
-        blogs = BlogManager.get_queryset()
+        blogs = Blog.objects.get_queryset()
         if not user.is_superuser:
             blogs = blogs.filter(authors=user)
 
@@ -244,11 +248,14 @@ class DeskSite(admin.AdminSite):
         for app in app_list:
             app['models'].sort(key=lambda x: x['name'])
 
-        context = {
+        context = self.each_context(request)
+        context.update({
             'title': _('Desk'),
             'app_list': app_list,
-        }
-        context.update(extra_context or {})
+        })
+        if extra_context:
+            context.update(extra_context)
+
         return TemplateResponse(request, self.index_template or [
             'desk/index.html',
             'admin/index.html',
@@ -281,27 +288,25 @@ class BlogModelDesk(BlogModelAdmin):
     object_history_template = 'desk/object_history.html'
 
     def add_view(self, request, form_url='', extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
+        request.blog = Blog.objects.get(slug=blog_slug)
         context = {'blog': request.blog}
         context.update(extra_context or {})
         return super(BlogModelDesk, self).add_view(request, form_url, context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
+        request.blog = Blog.objects.get(slug=blog_slug)
         context = {'blog': request.blog}
-        if extra_context:
-            context.update(extra_context)
+        context.update(extra_context or {})
         return super(BlogModelDesk, self).change_view(request, object_id, form_url, context)
 
     def changelist_view(self, request, extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
+        request.blog = Blog.objects.get(slug=blog_slug)
         context = {'blog': request.blog}
-        if extra_context:
-            context.update(extra_context)
+        context.update(extra_context or {})
         return super(BlogModelDesk, self).changelist_view(request, context)
 
     def delete_view(self, request, object_id, extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
+        request.blog = Blog.objects.get(slug=blog_slug)
         context = {'blog': request.blog}
         if extra_context:
             context.update(extra_context)
@@ -343,7 +348,7 @@ class BlogModelDesk(BlogModelAdmin):
         return qs
 
     def history_view(self, request, object_id, extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
+        request.blog = Blog.objects.get(slug=blog_slug)
         context = {'blog': request.blog}
         context.update(extra_context or {})
         return super(BlogModelDesk, self).history_view(request, object_id, context)
