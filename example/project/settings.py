@@ -7,7 +7,6 @@ PROJECT_ROOT = os.path.normpath(
                    os.path.realpath(__file__)))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -138,7 +137,6 @@ MIDDLEWARE_CLASSES = (
 
 # Security settings
 ALLOWED_HOSTS = ['localhost']
-ALLOWED_INCLUDE_ROOTS = [PROJECT_ROOT]
 X_FRAME_OPTIONS = 'DENY'
 
 # Sessions settings.
@@ -154,30 +152,33 @@ STATIC_URL = '/static/'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
 )
 
 # Template settings.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_ROOT, 'templates'),
-)
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.request',
-    'django.core.context_processors.static',
-    'django.core.context_processors.tz',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-)
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [
+        os.path.join(PROJECT_ROOT, 'templates'),
+    ],
+    'OPTIONS': {
+        'context_processors': [
+            'django.template.context_processors.i18n',
+            'django.template.context_processors.media',
+            'django.template.context_processors.request',
+            'django.template.context_processors.static',
+            'django.template.context_processors.tz',
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+        ],
+        'loaders': [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ],
+    },
+}]
 
 # URL settings.
 ROOT_URLCONF = 'project.urls'

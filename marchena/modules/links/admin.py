@@ -6,12 +6,12 @@ from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import admin
-from yepes.loading import get_model
+from yepes.apps import apps
 
 from marchena.admin import BlogModelAdmin
 
-Link = get_model('links', 'Link')
-LinkCategory = get_model('links', 'LinkCategory')
+Link = apps.get_model('links', 'Link')
+LinkCategory = apps.get_model('links', 'LinkCategory')
 
 
 class LinkMixin(object):

@@ -1,54 +1,54 @@
 # -*- coding:utf-8 -*-
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
+from yepes.apps import apps
 from yepes.contrib.sitemaps.views import SitemapIndexView
-from yepes.loading import get_class
 from yepes.urlresolvers import full_reverse_lazy
 
-CommentAtomFeed = get_class('comments.feeds', 'CommentAtomFeed')
-CommentRssFeed = get_class('comments.feeds', 'CommentRssFeed')
-PostsAtomFeed = get_class('posts.feeds', 'PostsAtomFeed')
-PostsRssFeed = get_class('posts.feeds', 'PostsRssFeed')
-AuthorPostsAtomFeed = get_class('posts.feeds', 'AuthorPostsAtomFeed')
-AuthorPostsRssFeed = get_class('posts.feeds', 'AuthorPostsRssFeed')
-BlogPostsAtomFeed = get_class('posts.feeds', 'BlogPostsAtomFeed')
-BlogPostsRssFeed = get_class('posts.feeds', 'BlogPostsRssFeed')
-CategoryPostsAtomFeed = get_class('posts.feeds', 'CategoryPostsAtomFeed')
-CategoryPostsRssFeed = get_class('posts.feeds', 'CategoryPostsRssFeed')
-TagPostsAtomFeed = get_class('posts.feeds', 'TagPostsAtomFeed')
-TagPostsRssFeed = get_class('posts.feeds', 'TagPostsRssFeed')
+CommentAtomFeed = apps.get_class('comments.feeds', 'CommentAtomFeed')
+CommentRssFeed = apps.get_class('comments.feeds', 'CommentRssFeed')
+PostsAtomFeed = apps.get_class('posts.feeds', 'PostsAtomFeed')
+PostsRssFeed = apps.get_class('posts.feeds', 'PostsRssFeed')
+AuthorPostsAtomFeed = apps.get_class('posts.feeds', 'AuthorPostsAtomFeed')
+AuthorPostsRssFeed = apps.get_class('posts.feeds', 'AuthorPostsRssFeed')
+BlogPostsAtomFeed = apps.get_class('posts.feeds', 'BlogPostsAtomFeed')
+BlogPostsRssFeed = apps.get_class('posts.feeds', 'BlogPostsRssFeed')
+CategoryPostsAtomFeed = apps.get_class('posts.feeds', 'CategoryPostsAtomFeed')
+CategoryPostsRssFeed = apps.get_class('posts.feeds', 'CategoryPostsRssFeed')
+TagPostsAtomFeed = apps.get_class('posts.feeds', 'TagPostsAtomFeed')
+TagPostsRssFeed = apps.get_class('posts.feeds', 'TagPostsRssFeed')
 
-BlogUrlGenerator = get_class('blogs.urlresolvers', 'BlogUrlGenerator')
+BlogUrlGenerator = apps.get_class('blogs.urlresolvers', 'BlogUrlGenerator')
 
-AuthorDetailView = get_class('authors.views', 'AuthorDetailView')
-AuthorListView = get_class('authors.views', 'AuthorListView')
-BlogDetailView = get_class('blogs.views', 'BlogDetailView')
-BlogListView = get_class('blogs.views', 'BlogListView')
-CategoryDetailView = get_class('posts.views', 'CategoryDetailView')
-CategoryListView = get_class('posts.views', 'CategoryListView')
-PostDetailView = get_class('posts.views', 'PostDetailView')
-PostListView = get_class('posts.views', 'PostListView')
-PostSearchView = get_class('posts.views', 'PostSearchView')
-TagDetailView = get_class('posts.views', 'TagDetailView')
-TagListView = get_class('posts.views', 'TagListView')
+AuthorDetailView = apps.get_class('authors.views', 'AuthorDetailView')
+AuthorListView = apps.get_class('authors.views', 'AuthorListView')
+BlogDetailView = apps.get_class('blogs.views', 'BlogDetailView')
+BlogListView = apps.get_class('blogs.views', 'BlogListView')
+CategoryDetailView = apps.get_class('posts.views', 'CategoryDetailView')
+CategoryListView = apps.get_class('posts.views', 'CategoryListView')
+PostDetailView = apps.get_class('posts.views', 'PostDetailView')
+PostListView = apps.get_class('posts.views', 'PostListView')
+PostSearchView = apps.get_class('posts.views', 'PostSearchView')
+TagDetailView = apps.get_class('posts.views', 'TagDetailView')
+TagListView = apps.get_class('posts.views', 'TagListView')
 
-PostArchiveIndexView = get_class('posts.views.archive', 'PostArchiveIndexView')
-PostArchiveYearView = get_class('posts.views.archive', 'PostArchiveYearView')
-PostArchiveMonthView = get_class('posts.views.archive', 'PostArchiveMonthView')
-PostArchiveDayView = get_class('posts.views.archive', 'PostArchiveDayView')
+PostArchiveIndexView = apps.get_class('posts.views.archive', 'PostArchiveIndexView')
+PostArchiveYearView = apps.get_class('posts.views.archive', 'PostArchiveYearView')
+PostArchiveMonthView = apps.get_class('posts.views.archive', 'PostArchiveMonthView')
+PostArchiveDayView = apps.get_class('posts.views.archive', 'PostArchiveDayView')
 
-LinksOpmlView = get_class('links.views.opml', 'LinksOpmlView')
+LinksOpmlView = apps.get_class('links.views.opml', 'LinksOpmlView')
 
-AuthorSitemapView = get_class('authors.views.sitemaps', 'AuthorSitemapView')
-BlogSitemapView = get_class('blogs.views.sitemaps', 'BlogSitemapView')
-CategorySitemapView = get_class('posts.views.sitemaps', 'CategorySitemapView')
-NewsSitemapView = get_class('posts.views.sitemaps', 'NewsSitemapView')
-PostSitemapView = get_class('posts.views.sitemaps', 'PostSitemapView')
-TagSitemapView = get_class('posts.views.sitemaps', 'TagSitemapView')
+AuthorSitemapView = apps.get_class('authors.views.sitemaps', 'AuthorSitemapView')
+BlogSitemapView = apps.get_class('blogs.views.sitemaps', 'BlogSitemapView')
+CategorySitemapView = apps.get_class('posts.views.sitemaps', 'CategorySitemapView')
+NewsSitemapView = apps.get_class('posts.views.sitemaps', 'NewsSitemapView')
+PostSitemapView = apps.get_class('posts.views.sitemaps', 'PostSitemapView')
+TagSitemapView = apps.get_class('posts.views.sitemaps', 'TagSitemapView')
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$',
         PostListView.as_view(),
         name='post_list',
@@ -202,4 +202,4 @@ urlpatterns = patterns('',
         TagPostsRssFeed(),
         name='post_feed',
     ),
-)
+]

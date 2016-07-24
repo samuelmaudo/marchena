@@ -6,15 +6,15 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import ugettext as _
 
-from yepes.loading import get_class, get_model
+from yepes.apps import apps
 from yepes.urlresolvers import full_reverse
 
-AuthorMixin = get_class('authors.view_mixins', 'AuthorMixin')
-BlogMixin = get_class('blogs.view_mixins', 'BlogMixin')
-CategoryMixin = get_class('posts.view_mixins', 'CategoryMixin')
-TagMixin = get_class('posts.view_mixins', 'TagMixin')
+AuthorMixin = apps.get_class('authors.view_mixins', 'AuthorMixin')
+BlogMixin = apps.get_class('blogs.view_mixins', 'BlogMixin')
+CategoryMixin = apps.get_class('posts.view_mixins', 'CategoryMixin')
+TagMixin = apps.get_class('posts.view_mixins', 'TagMixin')
 
-Post = get_model('posts', 'Post')
+Post = apps.get_model('posts', 'Post')
 
 
 class PostsRssFeed(Feed):

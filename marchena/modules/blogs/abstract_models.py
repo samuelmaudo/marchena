@@ -40,6 +40,7 @@ class AbstractBlog(Illustrated, Slugged, MetaData, Logged):
             related_name='blogs',
             verbose_name=_('Authors'))
 
+    objects = models.Manager()
     cache = LookupTable(
             indexed_fields=['slug'],
             prefetch_related=['authors', 'categories'])

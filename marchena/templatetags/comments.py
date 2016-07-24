@@ -2,14 +2,14 @@
 
 from __future__ import unicode_literals
 
-from django.template.base import Library
+from django.template import Library
 from django.utils import six
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.template import AssignTag, InclusionTag, MultipleObjectMixin
 
-Author = get_model('authors', 'Author')
-Comment = get_model('comments', 'Comment')
+Author = apps.get_model('authors', 'Author')
+Comment = apps.get_model('comments', 'Comment')
 
 register = Library()
 

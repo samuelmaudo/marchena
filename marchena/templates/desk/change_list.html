@@ -8,7 +8,7 @@
     {% if not is_popup %}
         <ul class="grp-horizontal-list">
             <li><a href="../../">{% trans "Home" %}</a></li>
-            <li><a href="../">{% trans app_label|capfirst|escape %}</a></li>
+            <li><a href="../">{{ cl.blog.title }}</a></li>
             <li>{{ cl.opts.verbose_name_plural|capfirst }}</li>
         </ul>
     {% endif %}
@@ -16,6 +16,8 @@
 
 <!-- OBJECT-TOOLS-ITEMS -->
 {% block object-tools-items %}
+  {% if has_add_permission %}
     {% url cl.opts|desk_urlname:'add' request.blog.slug as add_url %}
     <li><a href="{% add_preserved_filters add_url is_popup %}" class="grp-add-link grp-state-focus">{% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}</a></li>
+  {% endif %}
 {% endblock %}

@@ -2,10 +2,10 @@
 
 from __future__ import unicode_literals
 
+from yepes.apps import apps
 from yepes.contrib.sitemaps.views import SitemapView
-from yepes.loading import get_class
 
-AuthorSitemap = get_class('authors.sitemaps', 'AuthorSitemap')
+AuthorSitemap = apps.get_class('authors.sitemaps', 'AuthorSitemap')
 
 
 class AuthorSitemapView(SitemapView):

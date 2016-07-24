@@ -7,19 +7,19 @@ from datetime import datetime
 
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-from django.template.base import Library
+from django.template import Library
 from django.template.defaultfilters import date as date_format
 from django.utils import six
 from django.utils import timezone
 
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.template import AssignTag, InclusionTag, SingleTag
 from yepes.template import MultipleObjectMixin, SingleObjectMixin
 
-Author = get_model('authors', 'Author')
-Category = get_model('posts', 'Category')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Author = apps.get_model('authors', 'Author')
+Category = apps.get_model('posts', 'Category')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 register = Library()
 
@@ -129,7 +129,7 @@ class GetCategoryTag(SingleObjectMixin, AssignTag):
         if not blog:
             return None
         qs = self.get_queryset()
-        qs = qs.filter(id=blog.pk)
+        qs = qs.filter(blog=blog)
         return self.get_object(qs, category_slug)
 
 register.tag('get_category', GetCategoryTag.as_tag())
@@ -148,7 +148,7 @@ class GetCategoriesTag(MultipleObjectMixin, AssignTag):
         if not blog:
             return []
         qs = self.get_queryset()
-        qs = qs.filter(id=blog.pk)
+        qs = qs.filter(blog=blog)
         return self.get_object_list(qs, category_slugs)
 
 register.tag('get_categories', GetCategoriesTag.as_tag())

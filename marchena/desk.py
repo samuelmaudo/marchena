@@ -5,12 +5,13 @@ from __future__ import unicode_literals
 from copy import deepcopy
 from functools import update_wrapper
 
-from django.conf.urls import patterns, url, include
-from django.contrib.admin.util import quote
+from django import VERSION as DJANGO_VERSION
+from django.conf.urls import url, include
+from django.contrib.admin.utils import quote
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.contenttypes import views as contenttype_views
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.utils import six
 from django.utils.text import capfirst
@@ -18,38 +19,40 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
 from yepes import admin
+from yepes.apps import apps
 from yepes.conf import settings
-from yepes.loading import get_class, get_model
 
 from marchena.admin import BlogModelAdmin
+from marchena.templatetags.desk_urls import add_preserved_filters
 
-AuthorMixin = get_class('authors.admin', 'AuthorMixin')
-CategoryMixin = get_class('posts.admin', 'CategoryMixin')
-CommentMixin = get_class('comments.admin', 'CommentMixin')
-LinkMixin = get_class('links.admin', 'LinkMixin')
-LinkCategoryMixin = get_class('links.admin', 'LinkCategoryMixin')
-PostMixin = get_class('posts.admin', 'PostMixin')
-TagMixin = get_class('posts.admin', 'TagMixin')
+AuthorMixin = apps.get_class('authors.admin', 'AuthorMixin')
+CategoryMixin = apps.get_class('posts.admin', 'CategoryMixin')
+CommentMixin = apps.get_class('comments.admin', 'CommentMixin')
+LinkMixin = apps.get_class('links.admin', 'LinkMixin')
+LinkCategoryMixin = apps.get_class('links.admin', 'LinkCategoryMixin')
+PostMixin = apps.get_class('posts.admin', 'PostMixin')
+TagMixin = apps.get_class('posts.admin', 'TagMixin')
 
-Author = get_model('authors', 'Author')
-Blog = get_model('blogs', 'Blog')
-BlogManager = Blog._default_manager
-Category = get_model('posts', 'Category')
-Comment = get_model('comments', 'Comment')
-Link = get_model('links', 'Link')
-LinkCategory = get_model('links', 'LinkCategory')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Author = apps.get_model('authors', 'Author')
+Blog = apps.get_model('blogs', 'Blog')
+Category = apps.get_model('posts', 'Category')
+Comment = apps.get_model('comments', 'Comment')
+Link = apps.get_model('links', 'Link')
+LinkCategory = apps.get_model('links', 'LinkCategory')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 
 class DeskSite(admin.AdminSite):
 
-    def __init__(self, name='desk', app_name='desk'):
-        super(DeskSite, self).__init__(name, app_name)
+    def __init__(self, name='desk'):
+        super(DeskSite, self).__init__(name)
 
     def app_index(self, request, app_label, extra_context=None):
+        request.current_app = self.name
+
         user = request.user
-        blogs = BlogManager
+        blogs = Blog.objects.all()
         if not user.is_superuser:
             blogs = blogs.filter(authors=user)
 
@@ -61,7 +64,7 @@ class DeskSite(admin.AdminSite):
         app_dict = {}
         for model, model_admin in self._registry.items():
             app_label = model._meta.app_label
-            has_module_perms = user.has_module_perms(app_label)
+            has_module_perms = model_admin.has_module_permission(request)
             if not has_module_perms:
                 continue
 
@@ -71,7 +74,7 @@ class DeskSite(admin.AdminSite):
             if True not in perms.values():
                 continue
 
-            info = (self.name, app_label, model._meta.module_name)
+            info = (self.name, app_label, model._meta.model_name)
             kwargs = {'blog_slug': blog.slug}
             model_dict = {
                 'name': capfirst(model._meta.verbose_name_plural),
@@ -83,12 +86,14 @@ class DeskSite(admin.AdminSite):
                     model_dict['admin_url'] = reverse(view_name, kwargs=kwargs)
                 except NoReverseMatch:
                     pass
+
             if perms.get('add', False):
                 try:
                     view_name = '{0}:{1}_{2}_add'.format(*info)
                     model_dict['add_url'] = reverse(view_name, kwargs=kwargs)
                 except NoReverseMatch:
                     pass
+
             if app_dict:
                 app_dict['models'].append(model_dict),
             else:
@@ -108,15 +113,18 @@ class DeskSite(admin.AdminSite):
         # Sort the models alphabetically within each app.
         app_dict['models'].sort(key=lambda x: x['name'])
 
-        context = {
+        context = self.each_context(request)
+        context.update({
             'title': _("{0}'s desk").format(blog.title),
             'app_list': [app_dict],
-        }
-        context.update(extra_context or {})
+        })
+        if extra_context:
+            context.update(extra_context)
+
         return TemplateResponse(request, self.app_index_template or [
             'desk/app_index.html',
             'admin/app_index.html',
-        ], context, current_app=self.name)
+        ], context)
 
     def get_model_urls(self):
         """
@@ -124,11 +132,13 @@ class DeskSite(admin.AdminSite):
         """
         urlpatterns = []
         for model, model_admin in six.iteritems(self._registry):
-            urlpatterns += patterns('',
-                url(r'^(?P<blog_slug>[a-z\-]+)/{0}/'.format(
-                                    model._meta.module_name),
+            opts = model._meta
+            urlpatterns += [
+                url(r'^{0}/{1}/'.format(opts.app_label, opts.model_name),
                     include(model_admin.urls)),
-            )
+                url(r'^(?P<blog_slug>[a-z\-]+)/{0}/'.format(opts.model_name),
+                    include(model_admin.urls)),
+            ]
         return urlpatterns
 
     def get_site_urls(self):
@@ -138,9 +148,10 @@ class DeskSite(admin.AdminSite):
         def wrap(view, cacheable=False):
             def wrapper(*args, **kwargs):
                 return self.admin_view(view, cacheable)(*args, **kwargs)
+            wrapper.admin_site = self
             return update_wrapper(wrapper, view)
 
-        return patterns('',
+        return [
             url(r'^$',
                 wrap(self.index),
                 name='index'),
@@ -161,10 +172,11 @@ class DeskSite(admin.AdminSite):
                 name='view_on_site'),
             url(r'^(?P<app_label>[a-z\-]+)/$',
                 wrap(self.app_index),
-                name='app_list'))
+                name='app_list'),
+        ]
 
     def get_urls(self):
-        if settings.DEBUG:
+        if settings.DEBUG and DJANGO_VERSION < (1, 10):
             self.check_dependencies()
         urlpatterns = self.get_site_urls()
         urlpatterns.extend(self.get_model_urls())
@@ -176,8 +188,10 @@ class DeskSite(admin.AdminSite):
         Displays the main admin index page, which lists all of the installed
         apps that have been registered in this site.
         """
+        request.current_app = self.name
+
         user = request.user
-        blogs = BlogManager.get_queryset()
+        blogs = Blog.objects.get_queryset()
         if not user.is_superuser:
             blogs = blogs.filter(authors=user)
 
@@ -195,7 +209,7 @@ class DeskSite(admin.AdminSite):
                 if True not in perms.values():
                     continue
 
-                info = (self.name, app_label, model._meta.module_name)
+                info = (self.name, app_label, model._meta.model_name)
                 kwargs = {'blog_slug': blog.slug}
                 model_dict = {
                     'name': capfirst(model._meta.verbose_name_plural),
@@ -207,12 +221,14 @@ class DeskSite(admin.AdminSite):
                         model_dict['admin_url'] = reverse(view_name, kwargs=kwargs)
                     except NoReverseMatch:
                         pass
+
                 if perms.get('add', False):
                     try:
                         view_name = '{0}:{1}_{2}_add'.format(*info)
                         model_dict['add_url'] = reverse(view_name, kwargs=kwargs)
                     except NoReverseMatch:
                         pass
+
                 if blog.slug in app_dict:
                     app_dict[blog.slug]['models'].append(model_dict)
                 else:
@@ -232,15 +248,18 @@ class DeskSite(admin.AdminSite):
         for app in app_list:
             app['models'].sort(key=lambda x: x['name'])
 
-        context = {
+        context = self.each_context(request)
+        context.update({
             'title': _('Desk'),
             'app_list': app_list,
-        }
-        context.update(extra_context or {})
+        })
+        if extra_context:
+            context.update(extra_context)
+
         return TemplateResponse(request, self.index_template or [
             'desk/index.html',
             'admin/index.html',
-        ], context, current_app=self.name)
+        ], context)
 
 desk_site = DeskSite()
 
@@ -255,7 +274,7 @@ class DeskChangeList(ChangeList):
         view_name = '{0}:{1}_{2}_change'.format(
                 self.model_admin.admin_site.name,
                 self.opts.app_label,
-                self.opts.module_name)
+                self.opts.model_name)
         kwargs = {'object_id': quote(getattr(result, self.pk_attname))}
         kwargs['blog_slug'] = quote(self.blog.slug)
         return reverse(view_name, kwargs=kwargs)
@@ -269,27 +288,28 @@ class BlogModelDesk(BlogModelAdmin):
     object_history_template = 'desk/object_history.html'
 
     def add_view(self, request, form_url='', extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
-        context = {'app_label': request.blog.title}
+        request.blog = Blog.objects.get(slug=blog_slug)
+        context = {'blog': request.blog}
         context.update(extra_context or {})
         return super(BlogModelDesk, self).add_view(request, form_url, context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
-        context = {'app_label': request.blog.title}
+        request.blog = Blog.objects.get(slug=blog_slug)
+        context = {'blog': request.blog}
         context.update(extra_context or {})
         return super(BlogModelDesk, self).change_view(request, object_id, form_url, context)
 
     def changelist_view(self, request, extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
-        context = {'app_label': request.blog.title}
+        request.blog = Blog.objects.get(slug=blog_slug)
+        context = {'blog': request.blog}
         context.update(extra_context or {})
         return super(BlogModelDesk, self).changelist_view(request, context)
 
     def delete_view(self, request, object_id, extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
-        context = {'app_label': request.blog.title}
-        context.update(extra_context or {})
+        request.blog = Blog.objects.get(slug=blog_slug)
+        context = {'blog': request.blog}
+        if extra_context:
+            context.update(extra_context)
 
         # This sucks but is the best solution that I have found.
         original_registry = self.admin_site._registry
@@ -328,14 +348,51 @@ class BlogModelDesk(BlogModelAdmin):
         return qs
 
     def history_view(self, request, object_id, extra_context=None, blog_slug=None):
-        request.blog = BlogManager.get(slug=blog_slug)
-        context = {'app_label': request.blog.title}
+        request.blog = Blog.objects.get(slug=blog_slug)
+        context = {'blog': request.blog}
         context.update(extra_context or {})
         return super(BlogModelDesk, self).history_view(request, object_id, context)
 
+    def response_post_save_add(self, request, obj):
+        opts = self.model._meta
+        if self.has_change_permission(request, None):
+            view_name = '{0}:{1}_{2}_changelist'.format(
+                self.admin_site.name,
+                opts.app_label,
+                opts.model_name,
+            )
+            post_url = reverse(view_name, kwargs={'blog_slug': request.blog.slug})
+            preserved_filters = self.get_preserved_filters(request)
+            context = {'preserved_filters': preserved_filters, 'opts': opts}
+            post_url = add_preserved_filters(context, post_url)
+        else:
+            post_url = reverse('{0}:index'.format(self.admin_site.name))
+
+        return HttpResponseRedirect(post_url)
+
+    def response_post_save_change(self, request, obj):
+        opts = self.model._meta
+        if self.has_change_permission(request, None):
+            view_name = '{0}:{1}_{2}_changelist'.format(
+                self.admin_site.name,
+                opts.app_label,
+                opts.model_name,
+            )
+            post_url = reverse(view_name, kwargs={'blog_slug': request.blog.slug})
+            preserved_filters = self.get_preserved_filters(request)
+            context = {'preserved_filters': preserved_filters, 'opts': opts}
+            post_url = add_preserved_filters(context, post_url)
+        else:
+            post_url = reverse('{0}:index'.format(self.admin_site.name))
+
+        return HttpResponseRedirect(post_url)
+
     def save_model(self, request, obj, *args, **kwargs):
         if hasattr(request, 'blog') and '__' not in self.blog_field:
-            setattr(obj, self.blog_field, request.blog)
+            field = obj._meta.get_field(self.blog_field)
+            if field.many_to_one or field.one_to_one:
+                setattr(obj, self.blog_field, request.blog)
+
         super(BlogModelDesk, self).save_model(request, obj, *args, **kwargs)
 
 

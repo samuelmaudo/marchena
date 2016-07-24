@@ -1,6 +1,7 @@
-Django<1.7
-django-grappelli<2.6
-django-mptt<0.8
+Django<1.9
+django-grappelli<2.8
+django-mptt
+lxml
 markdown2
 Pillow
 psycopg2

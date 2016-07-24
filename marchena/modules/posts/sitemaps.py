@@ -5,12 +5,12 @@ from __future__ import unicode_literals
 from django.utils import six
 from django.utils import translation
 
+from yepes.apps import apps
 from yepes.contrib.sitemaps import FullUrlSitemap
-from yepes.loading import get_model
 
-Category = get_model('posts', 'Category')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Category = apps.get_model('posts', 'Category')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 
 class CategorySitemap(FullUrlSitemap):

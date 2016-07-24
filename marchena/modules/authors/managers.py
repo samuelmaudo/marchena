@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
 
-from django.contrib.auth import get_user_model
+from yepes.apps import apps
+from yepes.conf import settings
 
-User = get_user_model()
+User = apps.get_registered_model(*settings.AUTH_USER_MODEL.split('.'))
 UserManager = User._default_manager.__class__
 
 

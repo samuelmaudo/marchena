@@ -4,14 +4,13 @@ from __future__ import unicode_literals
 
 from functools import update_wrapper
 
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url
 from django.utils.http import urlencode
 
 from yepes import admin
-from yepes.loading import get_model
+from yepes.apps import apps
 
-Blog = get_model('blogs', 'Blog')
-BlogManager = Blog._default_manager
+Blog = apps.get_model('blogs', 'Blog')
 
 
 class BlogModelAdmin(admin.ModelAdmin):
@@ -22,7 +21,7 @@ class BlogModelAdmin(admin.ModelAdmin):
         formfield = super(BlogModelAdmin, self).formfield_for_dbfield(db_field, **kwargs)
         if db_field.name == 'blog':
             user = kwargs['request'].user
-            blogs = BlogManager.filter(authors=user)
+            blogs = Blog.objects.filter(authors=user)
             try:
                 formfield.initial = blogs[0]
             except IndexError:
@@ -48,7 +47,7 @@ class BlogModelAdmin(admin.ModelAdmin):
             changelist_url = '{0}:{1}_{2}_changelist'.format(
                     self.admin_site.name,
                     self.opts.app_label,
-                    self.opts.module_name)
+                    self.opts.model_name)
             if current_url == changelist_url:
                 preserved_filters = request.GET.urlencode()
             else:
@@ -72,9 +71,9 @@ class BlogModelAdmin(admin.ModelAdmin):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
             return update_wrapper(wrapper, view)
 
-        info = (self.model._meta.app_label, self.model._meta.module_name)
+        info = (self.model._meta.app_label, self.model._meta.model_name)
 
-        urlpatterns = patterns('',
+        urlpatterns = [
             url(r'^$',
                 wrap(self.changelist_view),
                 name='{0}_{1}_changelist'.format(*info),
@@ -95,6 +94,6 @@ class BlogModelAdmin(admin.ModelAdmin):
                 wrap(self.change_view),
                 name='{0}_{1}_change'.format(*info),
             ),
-        )
+        ]
         return urlpatterns
 

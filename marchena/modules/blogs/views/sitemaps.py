@@ -2,10 +2,10 @@
 
 from __future__ import unicode_literals
 
+from yepes.apps import apps
 from yepes.contrib.sitemaps.views import SitemapView
-from yepes.loading import get_class
 
-BlogSitemap = get_class('blogs.sitemaps', 'BlogSitemap')
+BlogSitemap = apps.get_class('blogs.sitemaps', 'BlogSitemap')
 
 
 class BlogSitemapView(SitemapView):

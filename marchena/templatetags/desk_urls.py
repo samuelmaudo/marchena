@@ -2,10 +2,10 @@
 
 from __future__ import unicode_literals
 
-from django.contrib.admin.options import IS_POPUP_VAR
-from django.contrib.admin.util import quote
-from django.core.urlresolvers import resolve, Resolver404
 from django import template
+from django.contrib.admin.options import IS_POPUP_VAR, TO_FIELD_VAR
+from django.contrib.admin.utils import quote
+from django.core.urlresolvers import get_script_prefix, resolve, Resolver404
 from django.utils.http import urlencode
 from django.utils.six.moves.urllib.parse import parse_qsl, urlparse, urlunparse
 
@@ -14,7 +14,7 @@ register = template.Library()
 
 @register.filter
 def desk_urlname(value, arg):
-    return 'desk:{0}_{1}_{2}'.format(value.app_label, value.module_name, arg)
+    return 'desk:{0}_{1}_{2}'.format(value.app_label, value.model_name, arg)
 
 
 @register.filter
@@ -23,7 +23,7 @@ def desk_urlquote(value):
 
 
 @register.simple_tag(takes_context=True)
-def add_preserved_filters(context, url, popup=False):
+def add_preserved_filters(context, url, popup=False, to_field=None):
     opts = context.get('opts')
     preserved_filters = context.get('preserved_filters')
 
@@ -34,8 +34,9 @@ def add_preserved_filters(context, url, popup=False):
     if opts and preserved_filters:
         preserved_filters = dict(parse_qsl(preserved_filters))
 
+        match_url = '/{0}'.format(url.partition(get_script_prefix())[2])
         try:
-            match = resolve(url)
+            match = resolve(match_url)
         except Resolver404:
             pass
         else:
@@ -49,6 +50,9 @@ def add_preserved_filters(context, url, popup=False):
 
     if popup:
         merged_qs[IS_POPUP_VAR] = 1
+
+    if to_field:
+        merged_qs[TO_FIELD_VAR] = to_field
 
     merged_qs.update(parsed_qs)
 

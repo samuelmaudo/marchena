@@ -11,14 +11,14 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import admin
-from yepes.loading import get_model
+from yepes.apps import apps
 from yepes.utils.humanize import naturalday
 
 from marchena.admin import BlogModelAdmin
 
-Category = get_model('posts', 'Category')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Category = apps.get_model('posts', 'Category')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 
 class CategoryMixin(object):

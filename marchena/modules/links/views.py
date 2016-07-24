@@ -2,14 +2,14 @@
 
 from __future__ import unicode_literals
 
-from yepes.loading import get_class, get_model
+from yepes.apps import apps
 from yepes.views import ListView
 
-Link = get_model('links', 'Link')
-LinkCategory = get_model('links', 'LinkCategory')
+Link = apps.get_model('links', 'Link')
+LinkCategory = apps.get_model('links', 'LinkCategory')
 
-BlogMixin = get_class('marchena.view_mixins', 'BlogMixin')
-LinkCategoryMixin = get_class('links.view_mixins', 'LinkCategoryMixin')
+BlogMixin = apps.get_class('marchena.view_mixins', 'BlogMixin')
+LinkCategoryMixin = apps.get_class('links.view_mixins', 'LinkCategoryMixin')
 
 
 class LinkListView(BlogMixin, ListView):

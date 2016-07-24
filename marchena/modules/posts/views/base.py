@@ -2,19 +2,19 @@
 
 from __future__ import unicode_literals
 
-from yepes.loading import get_class, get_model
+from yepes.apps import apps
 from yepes.views import DetailView, ListView
 
 from marchena.modules.posts.signals import post_viewed, post_search
 
-AuthorMixin = get_class('authors.view_mixins', 'AuthorMixin')
-BlogMixin = get_class('blogs.view_mixins', 'BlogMixin')
-CategoryMixin = get_class('posts.view_mixins', 'CategoryMixin')
-TagMixin = get_class('posts.view_mixins', 'TagMixin')
+AuthorMixin = apps.get_class('authors.view_mixins', 'AuthorMixin')
+BlogMixin = apps.get_class('blogs.view_mixins', 'BlogMixin')
+CategoryMixin = apps.get_class('posts.view_mixins', 'CategoryMixin')
+TagMixin = apps.get_class('posts.view_mixins', 'TagMixin')
 
-Category = get_model('posts', 'Category')
-Post = get_model('posts', 'Post')
-Tag = get_model('posts', 'Tag')
+Category = apps.get_model('posts', 'Category')
+Post = apps.get_model('posts', 'Post')
+Tag = apps.get_model('posts', 'Tag')
 
 
 class PostDetailView(AuthorMixin, BlogMixin, CategoryMixin, TagMixin, DetailView):
@@ -117,17 +117,10 @@ class PostSearchView(AuthorMixin, BlogMixin, CategoryMixin, TagMixin, PostListVi
         names = super(PostSearchView, self).get_template_names()
         model = self.get_model()
         if model is not None:
-            blog = self.get_blog()
-            args = (
+            names.insert(-1, '{0}/{1}_search.html'.format(
                 model._meta.app_label,
-                blog.slug.replace('-', '_') if blog else None,
                 model._meta.model_name,
-            )
-            if blog is not None:
-                names.insert(-2, '{0}/{1}/{2}_search.html'.format(*args))
-
-            names.insert(-1, '{0}/{2}_search.html'.format(*args))
-
+            ))
         return names
 
 
@@ -141,20 +134,12 @@ class CategoryDetailView(BlogMixin, CategoryMixin, PostListView):
 
     def get_template_names(self):
         names = super(CategoryDetailView, self).get_template_names()
-        model = self.get_model()
-        if model is not None:
-            blog = self.get_blog()
-            category = self.get_category()
-            args = (
-                model._meta.app_label,
-                blog.slug.replace('-', '_'),
+        category = self.get_category()
+        if category is not None:
+            names.insert(-1, '{0}/{1}_detail.html'.format(
+                category._meta.app_label,
                 category._meta.model_name,
-                category.slug.replace('-', '_'),
-            )
-            names.insert(-2, '{0}/{1}/{2}/{3}.html'.format(*args))
-            names.insert(-2, '{0}/{1}/{2}_detail.html'.format(*args))
-            names.insert(-1, '{0}/{2}_detail.html'.format(*args))
-
+            ))
         return names
 
 
@@ -176,20 +161,12 @@ class TagDetailView(BlogMixin, TagMixin, PostListView):
 
     def get_template_names(self):
         names = super(TagDetailView, self).get_template_names()
-        model = self.get_model()
-        if model is not None:
-            tag = self.get_tag()
-            blog = self.get_blog()
-            args = (
-                model._meta.app_label,
-                blog.slug.replace('-', '_') if blog else None,
+        tag = self.get_tag()
+        if tag is not None:
+            names.insert(-1, '{0}/{1}_detail.html'.format(
+                tag._meta.app_label,
                 tag._meta.model_name,
-            )
-            if blog is not None:
-                names.insert(-2, '{0}/{1}/{2}_detail.html'.format(*args))
-
-            names.insert(-1, '{0}/{2}_detail.html'.format(*args))
-
+            ))
         return names
 
 

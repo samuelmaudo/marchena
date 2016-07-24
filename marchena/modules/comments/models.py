@@ -1,12 +1,15 @@
 # -*- coding:utf-8 -*-
 
-from marchena.modules.comments.abstract_models import (
-    AbstractComment,
-    AbstractCommentStatus,
-)
+from yepes.apps import apps
+
+AbstractComment = apps.get_class('comments.abstract_models', 'AbstractComment')
+AbstractCommentStatus = apps.get_class('comments.abstract_models', 'AbstractCommentStatus')
+
 
 class Comment(AbstractComment):
     pass
 
+
 class CommentStatus(AbstractCommentStatus):
     pass
+
