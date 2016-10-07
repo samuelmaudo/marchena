@@ -31,6 +31,7 @@ INSTALLED_APPS = (
     'yepes.contrib.sitemaps',
     'yepes.contrib.thumbnails',
     'marchena',
+    'marchena.modules.attachments',
     'marchena.modules.authors',
     'marchena.modules.blogs',
     'marchena.modules.comments',
