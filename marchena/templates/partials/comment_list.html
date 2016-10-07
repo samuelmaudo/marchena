@@ -1,0 +1,16 @@
+
+    <ul class="comment-list">
+  {% for comment in comment_list %}
+      <li class="comment-list-item">
+        <div class="comment-list-item-author">
+          {{ comment.get_author_link }}
+        </div>
+        <div class="comment-list-item-date">
+          {{ comment.get_date }}
+        </div>
+        <div class="comment-list-item-content">
+          {{ comment.get_content }}
+        </div>
+      </li>
+  {% endfor %}
+    </ul>

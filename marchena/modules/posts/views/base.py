@@ -2,10 +2,18 @@
 
 from __future__ import unicode_literals
 
-from yepes.apps import apps
-from yepes.views import DetailView, ListView
+from django.http import HttpResponseRedirect
 
-from marchena.modules.posts.signals import post_viewed, post_search
+from yepes.apps import apps
+from yepes.conf import settings
+from yepes.contrib.registry import registry
+from yepes.view_mixins import CanonicalMixin
+from yepes.views import DetailView, ListView, SearchView
+from yepes.types import Undefined
+
+from marchena.modules.posts.signals import post_search, post_viewed
+
+CommentHandler = apps.get_class('comments.handlers', 'CommentHandler')
 
 AuthorMixin = apps.get_class('authors.view_mixins', 'AuthorMixin')
 BlogMixin = apps.get_class('blogs.view_mixins', 'BlogMixin')
@@ -17,7 +25,7 @@ Post = apps.get_model('posts', 'Post')
 Tag = apps.get_model('posts', 'Tag')
 
 
-class PostDetailView(AuthorMixin, BlogMixin, CategoryMixin, TagMixin, DetailView):
+class PostDetailView(AuthorMixin, BlogMixin, CategoryMixin, DetailView):
     """
     Displays the details of a published post.
     """
@@ -28,109 +36,93 @@ class PostDetailView(AuthorMixin, BlogMixin, CategoryMixin, TagMixin, DetailView
     require_author = False
     require_blog = False
     require_category = False
-    require_tag = False
     slug_url_kwarg = 'post_slug'
-    tag_field = 'tags'
     view_signal = post_viewed
+
+    def form_valid(self, form):
+        CommentHandler.create_comment(
+            post=self.object,
+            data=form.get_comment_data(),
+            request=self.request,
+        )
+        return HttpResponseRedirect(self.object.get_absolute_url())
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(comment_form=form))
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(PostDetailView, self).get_context_data(**kwargs)
+        if 'comment_form' not in kwargs:
+            kwargs['comment_form'] = self.get_form()
+        return kwargs
+
+    def get_form(self):
+        form = CommentHandler.get_comment_form(
+            post=self.object,
+            request=self.request,
+        )
+        return form
 
     def get_queryset(self):
         qs = super(PostDetailView, self).get_queryset()
         qs = qs.published(self.request.user)
         return qs
 
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
-class PostListView(ListView):
-    """
-    Displays a list of published posts.
-    """
+
+class PostListMixin(object):
+
     model = Post
 
+    def get_page_sizes(self):
+        if self._page_sizes is Undefined:
+            sizes = super(PostListMixin, self).get_page_sizes()
+            if not sizes:
+                sizes = registry['posts:PAGINATION_SIZES']
+                self._page_sizes = self.normalize_page_sizes(sizes)
+
+        return self._page_sizes
+
     def get_queryset(self):
-        qs = super(PostListView, self).get_queryset()
+        qs = super(PostListMixin, self).get_queryset()
         qs = qs.published(self.request.user)
         qs = qs.prefetch_related('authors', 'categories', 'tags')
         return qs
 
 
-class PostSearchView(AuthorMixin, BlogMixin, CategoryMixin, TagMixin, PostListView):
+class PostListView(PostListMixin, ListView):
     """
-    Displays a list of published posts filtered by author, blog, category, tag
-    or user query.
+    Displays a list of published posts.
     """
-    allow_get_parameters = True
-    author_field = 'authors'
-    category_field = 'categories'
-    query = None
-    require_author = False
-    require_blog = False
-    require_category = False
-    require_tag = False
+
+
+class PostSearchView(PostListMixin, SearchView):
+    """
+    Displays a list of published posts.
+
+    Optionally, user can filter posts by query.
+
+    """
     search_signal = post_search
-    tag_field = 'tags'
-
-    def get_cache_hash(self, request):
-        uri = super(PostSearchView, self).get_cache_hash(request)
-        if self.get_author():
-            uri += '&author={0}'.format(self.get_author().pk)
-        if self.get_blog():
-            uri += '&blog={0}'.format(self.get_blog().pk)
-        if self.get_category():
-            uri += '&category={0}'.format(self.get_category().pk)
-        if self.get_tag():
-            uri += '&tag={0}'.format(self.get_tag().pk)
-        if self.get_query():
-            uri += '&query={0}'.format(self.get_query())
-        return uri
-
-    def get_context_data(self, **kwargs):
-        context = super(PostSearchView, self).get_context_data(**kwargs)
-        context['query'] = self.get_query()
-        return context
-
-    def get_query(self):
-        q = (self.query
-             or self.kwargs.get('query')
-             or self.request.GET.get('query')
-             or self.request.GET.get('q'))
-        if q is not None:
-            return q.strip()
-        else:
-            return None
-
-    def get_queryset(self):
-        qs = super(PostSearchView, self).get_queryset()
-        q = self.get_query()
-        if q is not None:
-            self.send_search_signal(q, self.request)
-            return qs.search(q)
-        else:
-            return qs.none()
-
-    def send_search_signal(self, query, request):
-        if self.search_signal is not None:
-            self.search_signal.send(
-                sender=self,
-                query=query,
-                request=request)
-
-    def get_template_names(self):
-        names = super(PostSearchView, self).get_template_names()
-        model = self.get_model()
-        if model is not None:
-            names.insert(-1, '{0}/{1}_search.html'.format(
-                model._meta.app_label,
-                model._meta.model_name,
-            ))
-        return names
 
 
-class CategoryDetailView(BlogMixin, CategoryMixin, PostListView):
+class CategoryDetailView(BlogMixin, CategoryMixin, CanonicalMixin, PostListView):
     """
     Displays a list of published posts that belong to the given category.
     """
     category_field = 'categories'
-    require_blog = True
+    require_blog = settings.BLOG_MULTIPLE
     require_category = True
+
+    def get_canonical_path(self, request):
+        category = self.get_category()
+        return category.get_absolute_url()
 
     def get_template_names(self):
         names = super(CategoryDetailView, self).get_template_names()
@@ -148,16 +140,20 @@ class CategoryListView(BlogMixin, ListView):
     Displays a list of categories.
     """
     model = Category
-    require_blog = True
+    require_blog = settings.BLOG_MULTIPLE
 
 
-class TagDetailView(BlogMixin, TagMixin, PostListView):
+class TagDetailView(BlogMixin, TagMixin, CanonicalMixin, PostListView):
     """
     Displays a list of published posts that belong to the given tag.
     """
     require_blog = False
     require_tag = True
     tag_field = 'tags'
+
+    def get_canonical_path(self, request):
+        tag = self.get_tag()
+        return tag.get_absolute_url()
 
     def get_template_names(self):
         names = super(TagDetailView, self).get_template_names()

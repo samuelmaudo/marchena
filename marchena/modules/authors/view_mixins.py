@@ -26,19 +26,13 @@ class AuthorMixin(object):
             author = None
             author_pk = None
             author_name = None
-            if self.author:
-                if isinstance(self.author, six.integer_types):
-                    author_pk = self.author
-                elif isinstance(self.author, six.string_types):
-                    author_name = self.author
-            else:
+            if not self.author:
                 author_pk = self.kwargs.get('author_pk')
                 author_name = self.kwargs.get('author_name')
-                if (not author_pk
-                        and not author_name
-                        and (self, 'allow_get_parameters', False)):
-                    author_name = (self.request.GET.get('author')
-                                   or self.request.GET.get('a'))
+            elif isinstance(self.author, six.integer_types):
+                author_pk = self.author
+            elif isinstance(self.author, six.string_types):
+                author_name = self.author
 
             authors = Author.objects.filter(is_active=True)
             try:

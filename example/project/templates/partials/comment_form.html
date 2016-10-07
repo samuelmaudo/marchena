@@ -1,0 +1,58 @@
+
+{% if comment_form %}
+    <h5 class="m-t-2 m-b-1">Leave a Comment:</h5>
+    <form method="post">
+      {% csrf_token %}
+  {% for field in comment_form.hidden_fields %}
+      {{ field }}
+  {% endfor %}
+  {% for field in comment_form.visible_fields %}
+    {% if field.errors %}
+      <div class="form-group has-danger">
+    {% else %}
+      <div class="form-group">
+    {% endif %}
+    {% if field.html_name == 'comment' %}
+        <textarea id="field-{{ field.html_name }}"
+    {% if field.errors %}
+            class="form-control form-control-danger"
+    {% else %}
+            class="form-control"
+    {% endif %}
+            name="{{ field.html_name }}"
+            placeholder="{{ field.label }}"
+            rows="5"
+        >{{ field.value|default:'' }}</textarea>
+    {% else %}
+        <input id="field-{{ field.html_name }}"
+    {% if field.errors %}
+            class="form-control form-control-danger"
+    {% else %}
+            class="form-control"
+    {% endif %}
+            name="{{ field.html_name }}"
+            type="text"
+            placeholder="{{ field.label }}"
+      {% if field.field.max_length %}
+            maxlength="{{ field.field.max_length }}"
+      {% endif %}
+      {% if field.value %}
+            value="{{ field.value }}"
+      {% endif %}
+        >
+    {% endif %}
+    {% for error in field.errors %}
+        <p class="form-control-feedback">{{ error }}</p>
+    {% endfor %}
+    {% if field.help_text %}
+        <p class="form-text text-muted">{{ field.help_text }}</p>
+    {% endif %}
+      </div>
+  {% endfor %}
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+      </div>
+    </form>
+{% else %}
+    <h5 class="m-t-2 m-b-1">Comments are closed.</h5>
+{% endif %}

@@ -56,17 +56,11 @@ class AbstractBlog(Illustrated, Slugged, MetaData, Logged):
         return self.title
 
     def get_absolute_url(self):
-        kwargs = {
-            #'blog_pk': self.pk,
-            'blog_slug': self.slug,
-        }
+        kwargs = {'blog_slug': self.slug}
         return reverse('post_list', kwargs=kwargs)
 
     def get_feed_url(self):
-        kwargs = {
-            #'blog_pk': self.pk,
-            'blog_slug': self.slug,
-        }
+        kwargs = {'blog_slug': self.slug}
         return full_reverse('post_feed', kwargs=kwargs)
 
     def get_upload_path(self, filename):

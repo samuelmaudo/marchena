@@ -7,27 +7,22 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
-      <li class="active">Archive</li>
-    </ol>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"active">Archive</li>
 {% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
   {% block title %}
-    <div class="page-header">
-      <h1>Archive for {{ day|date:'N d, Y' }}</h1>
-    </div>
+    <h1>Archive for {{ day|date:'N d, Y' }}</h1>
   {% endblock %}
-    <article>
-      <p>
-        <ul class="list-unstyled">
+    <hr>
+    <p>
+      <ul class="list-unstyled">
   {% for post in post_list %}
-          <li>{{ post.get_link }}</li>
+        <li>{{ post.get_link }}</li>
   {% endfor %}
-        </ul>
-      </p>
-      <hr>
-    </article>
+      </ul>
+    </p>
+    <hr>
 {% endblock %}

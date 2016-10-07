@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^desk/', include(desk_site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^', include('marchena.urls')),
+    url(r'^', include('marchena.urls.multiple')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

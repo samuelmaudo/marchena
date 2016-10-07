@@ -1,4 +1,4 @@
-{% extends 'marchena/post_list.html' %}
+{% extends 'posts/post_list.html' %}
 
 <!-- LOADING -->
 {% load posts %}
@@ -10,32 +10,28 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
-      <li><a href="{% url 'blog_list' %}">Blogs</a></li>
-      <li class="active">{{ blog }}</li>
-    </ol>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Blogs</a></li>
+    <li class="breadcrumb-item active">{{ blog }}</li>
 {% endblock %}
 
 <!-- TITLE -->
 {% block title %}
-    <div class="page-header">
-      <div class="btn-group pull-right">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-          <small><span class="glyphicon glyphicon-tasks"></span></small> Categories
-        </button>
-        <ul class="dropdown-menu" role="menu">
-          <li><a href="{% url 'category_list' blog_slug=blog.slug %}">View list</a></li>
-          <li class="divider"></li>
-      {% get_categories as category_list %}
-      {% for category in category_list %}
-          <li>{{ category.get_link }}</li>
-      {% endfor %}
-        </ul>
-      </div>
-      <h1>
-        {{ blog }}
-        <small><a href="{{ blog.get_feed_url }}"><span class="glyphicon glyphicon-bullhorn"></span></a></small>
-      </h1>
+    <div class="btn-group pull-xs-right">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="categories" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Categories
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="categories">
+        <li><a class="dropdown-item" href="{% url 'category_list' blog_slug=blog.slug %}">View list</a></li>
+        <li class="dropdown-divider"></li>
+  {% get_categories as category_list %}
+  {% for category in category_list %}
+        <li><a class="dropdown-item" href="{{ category.get_absolute_url }}">{{ category }}</a></li>
+  {% endfor %}
+      </ul>
     </div>
+    <h1>
+      {{ blog }}
+      <a class="btn btn-sm btn-warning d-inline" href="{{ blog.get_feed_url }}">Feed</a>
+    </h1>
 {% endblock %}

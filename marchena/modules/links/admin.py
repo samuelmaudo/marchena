@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db.models import Count
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import admin
@@ -48,17 +49,28 @@ class LinkMixin(object):
             ],
         }),
     ]
-    list_display = ['name', 'url', 'category']
+    list_display = ['name', 'url', 'admin_category']
     list_filter = ['blog', 'category']
-    list_select_related = True
     raw_id_fields = ['blog', 'category']
     search_fields = ['name', 'url']
+
+    def admin_category(self, obj):
+        if obj.category_id is not None:
+            return format_html('<a href="?category__id__exact={0}">{1}</a>',
+                               obj.category_id,
+                               obj.category)
+        else:
+            return format_html('<a href="?category__isnull=True" style="color:#444">{0}</a>',
+                               ugettext('No category'))
+    admin_category.admin_order_field = 'category'
+    admin_category.allow_tags = True
+    admin_category.short_description = _('category')
 
     def get_queryset(self, request):
         qs = super(LinkMixin, self).get_queryset(request)
         if not request.user.is_superuser:
             qs = qs.filter(blog__authors=request.user)
-        return qs
+        return qs.prefetch_related('category')
 
 class LinkAdmin(LinkMixin, BlogModelAdmin):
     pass

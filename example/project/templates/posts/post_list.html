@@ -19,35 +19,41 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
-      <li class="active">Posts</li>
-    </ol>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item active">Posts</li>
 {% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
   {% block title %}
-    <div class="page-header">
-      <h1>
-        Posts
-        <small><a href="{% url 'post_feed' %}"><span class="glyphicon glyphicon-bullhorn"></span></a></small>
-      </h1>
-    </div>
+    <h1>
+      Posts
+      <a class="btn btn-sm btn-warning d-inline" href="{% url 'post_feed' %}">Feed</a>
+    </h1>
   {% endblock %}
+    <hr>
   {% for post in post_list %}
-      <article>
-        <h2>{{ post.get_link }}</h2>
-        <p><span class="glyphicon glyphicon-time"></span> Posted by {% post_authors ', ' ' and ' %} on {{ post.publish_from }}</p>
-        <hr>
-        {{ post.get_excerpt }}
-        <a class="btn btn-primary" href="{{ post.get_absolute_url }}">Read more <span class="glyphicon glyphicon-chevron-right"></span></a>
-      </article>
-      <hr>
+    <article>
+      <h3>{{ post.get_link }}</h3>
+    {% post_authors ', ' ' and ' as authors %}
+    {% if authors %}
+      <p><small class="text-muted">Posted by {{ authors }} on {{ post.publish_from }}</small></p>
+    {% else %}
+      <p><small class="text-muted">Posted on {{ post.publish_from }}</small></p>
+    {% endif %}
+      {{ post.get_excerpt }}
+      <p><small><a class="text-muted" href="{{ post.get_absolute_url }}">Read more...</a></small></p>
+    </article>
+    <hr>
   {% endfor %}
-      <!-- pager -->
-      <ul class="pager">
-        <li class="previous"><a href="#">&larr; Older</a></li>
-        <li class="next"><a href="#">Newer &rarr;</a></li>
-      </ul>
+  {% if page_obj.has_previous %}
+    <a href="{{ page_obj.previous_page.url }}" class="btn btn-primary pull-xs-left">&laquo; Newer Posts</a>
+  {% else %}
+    <span class="btn btn-primary pull-xs-left disabled">&laquo; Newer Posts</span>
+  {% endif %}
+  {% if page_obj.has_next %}
+    <a href="{{ page_obj.next_page.url }}" class='btn btn-primary pull-xs-right'>Older Posts &raquo;</a>
+  {% else %}
+    <span class="btn btn-primary pull-xs-right disabled">Older Posts &raquo;</span>
+  {% endif %}
 {% endblock %}

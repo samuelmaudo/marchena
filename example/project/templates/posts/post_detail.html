@@ -11,50 +11,67 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
-      <li><a href="{% url 'blog_list' %}">Blogs</a></li>
-      <li>{{ blog.get_link }}</li>
-      <li class="active">{{ post.title }}</li>
-    </ol>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Blogs</a></li>
+    <li class="breadcrumb-item">{{ blog.get_link }}</li>
+    <li class="breadcrumb-item active">{{ post.title }}</li>
 {% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
-    <div class="page-header">
-      <h1>
-        {{ post.title }}
+    <h1>
+      {{ post.title }}
   {% if post.subtitle %}
-        <small>{{ post.subtitle }}</small>
+      <small class="text-muted">{{ post.subtitle }}</small>
   {% endif %}
-      </h1>
-      <p><span class="glyphicon glyphicon-time"></span> Posted by {% post_authors ', ' ' and ' %} on {{ post.publish_from }}</p>
-    </div>
+    </h1>
+    <hr>
+  {% post_authors ', ' ' and ' as authors %}
+  {% if authors %}
+    <p><small class="text-muted">Posted by {{ authors }} on {{ post.publish_from }}</small></p>
+  {% else %}
+    <p><small class="text-muted">Posted on {{ post.publish_from }}</small></p>
+  {% endif %}
 
     {{ post.get_content }}
 
-    <hr>
-
   {% post_categories as categories %}
   {% if categories %}
-    <p>Categories: {{ categories }}</p>
+    <p><small class="text-muted">Categories: {{ categories }}</small></br>
   {% else %}
-    <p>No categories</p>
+    <p><small class="text-muted">No categories</small></br>
   {% endif %}
   {% post_tags as tags %}
   {% if tags %}
-    <p>Tags: {{ tags }}</p>
+    <small class="text-muted">Tags: {{ tags }}</small></p>
   {% else %}
-    <p>No tags</p>
+    <small class="text-muted">No tags</small></p>
   {% endif %}
 
+  {% get_previous_post %}
+  {% get_next_post %}
     <hr>
+  {% if previous_post %}
+    <a class="card-link" href="{{ previous_post.get_absolute_url }}">
+      <p class="text-xs-left">
+        <span class="text-muted text-uppercase">Previous</span><br>
+        <strong>{{ previous_post }}</strong>
+      </p>
+    </a>
+    <hr>
+  {% endif %}
+  {% if next_post %}
+    <a class="card-link" href="{{ next_post.get_absolute_url }}">
+      <p class="text-xs-right">
+        <span class="text-muted text-uppercase">Next</span><br>
+        <strong>{{ next_post }}</strong>
+      </p>
+    </a>
+    <hr>
+  {% endif %}
 
-    <ul class="pager">
-      <li class="previous">{% previous_post_link '{link}' '&larr; Previous' %}</li>
-      <li class="next">{% next_post_link '{link}' 'Next &rarr;' %}</li>
-    </ul>
+  {% post_comments %}
 
-    {% post_comments %}
+  {% comment_form %}
 
 {% endblock %}

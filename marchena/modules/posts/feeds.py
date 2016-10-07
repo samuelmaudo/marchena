@@ -90,9 +90,9 @@ class AuthorPostsRssFeed(AuthorMixin, BlogMixin, PostsRssFeed):
 
     def get_object(self, *args, **kwargs):
         super(AuthorPostsRssFeed, self).get_object(*args, **kwargs)
-        a = self.get_author()
-        b = self.get_blog()
-        return (a, b)
+        author = self.get_author()
+        blog = self.get_blog()
+        return (author, blog)
 
     def title(self, obj):
         author, blog = obj

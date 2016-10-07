@@ -8,9 +8,9 @@ from django.conf.urls import url
 from django.utils.http import urlencode
 
 from yepes import admin
-from yepes.apps import apps
+from yepes.loading import LazyModel
 
-Blog = apps.get_model('blogs', 'Blog')
+Blog = LazyModel('blogs', 'Blog')
 
 
 class BlogModelAdmin(admin.ModelAdmin):

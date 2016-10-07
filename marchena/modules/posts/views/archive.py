@@ -39,11 +39,7 @@ class PostArchiveIndexView(BlogMixin, CacheMixin, ArchiveIndexView):
         elif is_iterable(self.template_name):
             templates.extend(self.template_name)
 
-        blog = self.get_blog()
-        if blog is not None:
-            templates.append('marchena/{0}/archive_index.html'.format(blog.slug))
-
-        templates.append('marchena/archive_index.html')
+        templates.append('posts/archive_index.html')
         return templates
 
 
@@ -68,11 +64,7 @@ class PostArchiveYearView(BlogMixin, CacheMixin, YearArchiveView):
         elif is_iterable(self.template_name):
             templates.extend(self.template_name)
 
-        blog = self.get_blog()
-        if blog is not None:
-            templates.append('marchena/{0}/archive_year.html'.format(blog.slug))
-
-        templates.append('marchena/archive_year.html')
+        templates.append('posts/archive_year.html')
         return templates
 
 
@@ -98,11 +90,7 @@ class PostArchiveMonthView(BlogMixin, CacheMixin, MonthArchiveView):
         elif is_iterable(self.template_name):
             templates.extend(self.template_name)
 
-        blog = self.get_blog()
-        if blog is not None:
-            templates.append('marchena/{0}/archive_month.html'.format(blog.slug))
-
-        templates.append('marchena/archive_month.html')
+        templates.append('posts/archive_month.html')
         return templates
 
 
@@ -129,10 +117,6 @@ class PostArchiveDayView(BlogMixin, CacheMixin, DayArchiveView):
         elif is_iterable(self.template_name):
             templates.extend(self.template_name)
 
-        blog = self.get_blog()
-        if blog is not None:
-            templates.append('marchena/{0}/archive_day.html'.format(blog.slug))
-
-        templates.append('marchena/archive_day.html')
+        templates.append('posts/archive_day.html')
         return templates
 

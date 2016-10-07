@@ -7,17 +7,14 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
-      <li class="active">Blogs</li>
-    </ol>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item active">Blogs</li>
 {% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
-    <div class="page-header">
-      <h1>Blogs</h1>
-    </div>
+    <h1>Blogs</h1>
+    <hr>
   {% for blog in blog_list %}
     <p>{{ blog.get_link }}</p>
     {% if blog.description %}

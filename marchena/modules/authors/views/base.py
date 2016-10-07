@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from yepes.apps import apps
+from yepes.view_mixins import CanonicalMixin
 from yepes.views import ListView
 
 AuthorMixin = apps.get_class('authors.view_mixins', 'AuthorMixin')
@@ -12,13 +13,17 @@ PostListView = apps.get_class('posts.views', 'PostListView')
 Author = apps.get_model('authors', 'Author')
 
 
-class AuthorDetailView(AuthorMixin, BlogMixin, PostListView):
+class AuthorDetailView(AuthorMixin, BlogMixin, CanonicalMixin, PostListView):
     """
     Displays a list of published posts that belong to the given author.
     """
     author_field = 'authors'
     require_author = True
     require_blog = False
+
+    def get_canonical_path(self, request):
+        author = self.get_author()
+        return author.get_absolute_url()
 
     def get_template_names(self):
         names = super(AuthorDetailView, self).get_template_names()

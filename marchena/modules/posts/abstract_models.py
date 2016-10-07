@@ -4,10 +4,12 @@ from __future__ import unicode_literals
 
 from collections import namedtuple
 from datetime import timedelta
+from string import punctuation
 
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import F, Q
+from django.db.models.query import QuerySet
 from django.utils import six
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -19,7 +21,10 @@ from django.utils.translation import (
 )
 
 from yepes import fields
+from yepes.apps import apps
+from yepes.conf import settings
 from yepes.contrib.registry import registry
+from yepes.loading import LazyModel
 from yepes.model_mixins import (
     Displayable,
     Illustrated,
@@ -31,6 +36,11 @@ from yepes.model_mixins import (
 from yepes.types import Undefined
 from yepes.urlresolvers import full_reverse
 
+PostManager = apps.get_class('posts.managers', 'PostManager')
+PostRecordManager = apps.get_class('posts.managers', 'PostRecordManager')
+
+PostRecord = LazyModel('posts', 'PostRecord')
+
 FakeDate = namedtuple('FakeDate', 'year, month, day')
 
 
@@ -41,11 +51,12 @@ class AbstractCategory(Illustrated, Slugged, MetaData):
             'blogs.Blog',
             related_name='categories',
             verbose_name=_('Blog'))
+
     name = fields.CharField(
             unique=True,
             max_length=63,
             verbose_name=_('Name'))
-    description = models.TextField(
+    description = fields.TextField(
             blank=True,
             verbose_name=_('Description'),
             help_text=_('The description is usually not prominent.'))
@@ -61,21 +72,15 @@ class AbstractCategory(Illustrated, Slugged, MetaData):
         return self.name
 
     def get_absolute_url(self):
-        kwargs = {
-            #'blog_pk': self.blog.pk,
-            'blog_slug': self.blog.slug,
-            #'category_pk': self.pk,
-            'category_slug': self.slug,
-        }
+        kwargs = {'category_slug': self.slug}
+        if settings.BLOG_MULTIPLE:
+            kwargs['blog_slug'] = self.blog.slug
         return reverse('post_list', kwargs=kwargs)
 
     def get_feed_url(self):
-        kwargs = {
-            #'blog_pk': self.blog.pk,
-            'blog_slug': self.blog.slug,
-            #'category_pk': self.pk,
-            'category_slug': self.slug,
-        }
+        kwargs = {'category_slug': self.slug}
+        if settings.BLOG_MULTIPLE:
+            kwargs['blog_slug'] = self.blog.slug
         return full_reverse('post_feed', kwargs=kwargs)
 
     def get_upload_path(self, filename):
@@ -96,6 +101,7 @@ class AbstractPost(Illustrated, Displayable, Logged):
             'blogs.Blog',
             related_name='posts',
             verbose_name=_('Blog'))
+
     guid = fields.GuidField(
             editable=False,
             verbose_name=_('Global Unique Identifier'))
@@ -131,18 +137,48 @@ class AbstractPost(Illustrated, Displayable, Logged):
             related_name='posts',
             verbose_name=_('Tags'))
 
-    comment_status = models.BooleanField(
-            default=True,
+    comment_status = fields.BooleanField(
+            default=lambda: registry['posts:ALLOW_COMMENTS'],
             verbose_name=_('Allow comments on this post'))
-    ping_status = models.BooleanField(
+    ping_status = fields.BooleanField(
             default=True,
             verbose_name=_('Allow trackbacks and pingbacks to this post'))
 
-    search_fields = {'title': 5, 'content': 1}
+    views_count = models.PositiveIntegerField(
+            default=0,
+            blank=True,
+            editable=False,
+            db_index=True,
+            verbose_name=_('Views'))
+    comment_count = models.PositiveIntegerField(
+            default=0,
+            blank=True,
+            editable=False,
+            db_index=True,
+            verbose_name=_('Comments'))
+    ping_count = models.PositiveIntegerField(
+            default=0,
+            blank=True,
+            editable=False,
+            verbose_name=_('Pings'))
+
+    score = models.PositiveIntegerField(
+            default=0,
+            blank=True,
+            editable=False,
+            db_index=True,
+            verbose_name=_('Score'))
+
+    objects = PostManager()
+
+    search_fields = {'title': 5, 'subtitle': 3, 'content': 1}
 
     class Meta:
         abstract = True
         folder_name = 'blog_posts'
+        index_together = [
+            ('publish_status', 'creation_date'),
+        ]
         ordering = ['-publish_from']
         verbose_name = _('Post')
         verbose_name_plural = _('Posts')
@@ -151,31 +187,23 @@ class AbstractPost(Illustrated, Displayable, Logged):
         return self.title
 
     def get_absolute_url(self):
-        #post_date = self.get_publish_date()
         kwargs = {
-            #'blog_pk': self.blog.pk,
-            'blog_slug': self.blog.slug,
-            #'post_pk': self.pk,
-            'post_guid': self.guid,
             'post_slug': self.slug,
-            #'post_year': '{0:0>4}'.format(post_date.year),
-            #'post_month': '{0:0>2}'.format(post_date.month),
-            #'post_day': '{0:0>2}'.format(post_date.day),
+            'post_guid': self.guid,
         }
+        if settings.BLOG_MULTIPLE:
+            kwargs['blog_slug'] = self.blog.slug
+
         return reverse('post_detail', kwargs=kwargs)
 
     def get_feed_url(self):
-        #post_date = self.get_publish_date()
         kwargs = {
-            #'blog_pk': self.blog.pk,
-            'blog_slug': self.blog.slug,
-            #'post_pk': self.pk,
-            'post_guid': self.guid,
             'post_slug': self.slug,
-            #'post_year': '{0:0>4}'.format(post_date.year),
-            #'post_month': '{0:0>2}'.format(post_date.month),
-            #'post_day': '{0:0>2}'.format(post_date.day),
+            'post_guid': self.guid,
         }
+        if settings.BLOG_MULTIPLE:
+            kwargs['blog_slug'] = self.blog.slug
+
         return full_reverse('comment_feed', kwargs=kwargs)
 
     # CUSTOM METHODS
@@ -183,14 +211,16 @@ class AbstractPost(Illustrated, Displayable, Logged):
     def allow_comments(self):
         if not self.comment_status or not self.is_published():
             return False
-        limit = registry['marchena:COMMENTS_DAYS_ALLOWED']
+        limit = registry['comments:MAX_DAYS']
         if not limit:
             return True
         limit = timezone.now() - timedelta(limit)
-        return (self.publish_from
-                    and self.publish_from >= limit
-                or self.creation_date
-                    and self.creation_date >= limit)
+        if self.publish_from:
+            return (self.publish_from >= limit)
+        elif self.creation_date:
+            return (self.creation_date >= limit)
+        else:
+            return False
     allow_comments.boolean = True
     allow_comments.short_description = _('Allow comments?')
 
@@ -201,6 +231,7 @@ class AbstractPost(Illustrated, Displayable, Logged):
 
     def get_comments(self, limit=None, status=None, order_by=None):
         qs = self.comments.all()
+        qs = qs.prefetch_related('author')
         if status is None:
             qs = qs.published()
         elif isinstance(status, six.string_types):
@@ -219,11 +250,12 @@ class AbstractPost(Illustrated, Displayable, Logged):
         return mark_safe(self.content_html)
     get_content.short_description = _('Content')
 
-    def get_excerpt(self, max_words=100, end_text='...'):
+    def get_excerpt(self, max_words=55, end_text='...'):
         if not self.excerpt_html:
             truncator = Truncator(self.content_html)
-            excerpt = truncator.words(max_words, end_text, True)
-            return mark_safe(excerpt)
+            if end_text == '...':
+                end_text = '&hellip;'
+            return mark_safe(truncator.words(max_words, end_text, html=True))
         else:
             return mark_safe(self.excerpt_html)
     get_excerpt.short_description = _('Excerpt')
@@ -247,6 +279,84 @@ class AbstractPost(Illustrated, Displayable, Logged):
     def get_publish_date(self):
         return self.publish_from if self.publish_from else FakeDate(0, 0, 0)
     get_publish_date.short_description = _('Publish Date')
+
+    def get_related_posts(self, limit=5, same_blog=True):
+        manager = self.__class__._default_manager
+        qs = manager.published().exclude(pk__exact=self.pk)
+        if same_blog:
+            qs = qs.filter(blog_id=self.blog_id)
+
+        def get_primary_keys(posts):
+            if isinstance(posts, QuerySet):
+                return list(posts.values_list('pk', flat=True))
+            else:
+                return [post.pk for post in posts]
+
+        # Search similar posts using the post's title.
+        query = ' '.join([
+            term
+            for term
+            in [
+                term.strip(punctuation)    # This transforms
+                for term                   # "Super toy: pack 10 u."
+                in self.title.split()       # into
+                if not term.endswith('.')  # "Super toy pack"
+            ]
+            if not term.isdigit()
+        ])
+        related_post_ids = get_primary_keys(list(
+            qs.search(
+                query
+            )[:limit]
+        ))
+        remaining = limit - len(related_post_ids)
+
+        if remaining > 0:
+            # Fetch post from post's categories.
+            related_post_ids += get_primary_keys(
+                qs.filter(
+                    categories__in=self.categories.all()
+                ).exclude(
+                    pk__in=related_post_ids
+                ).distinct(   # Call to `distinct()` is required
+                ).order_by(   # because `categories__in` filter
+                    '-score'  # may result in duplicates.
+                )[:remaining]
+            )
+            remaining = limit - len(related_post_ids)
+
+            if remaining > 0:
+                # Fetch post from the rest of the blog.
+                related_post_ids += get_primary_keys(
+                    qs.exclude(
+                        pk__in=related_post_ids
+                    ).order_by(
+                        '-score'
+                    )[:remaining]
+                )
+                remaining = limit - len(related_post_ids)
+
+        related_posts = manager.filter(
+            pk__in=related_post_ids
+        ).order_by(
+            '-score'
+        )
+        return related_posts
+
+    def increase_comment_count(self):
+        record, _ = PostRecord.objects.get_or_create(post=self)
+        record.comment_count = F('comment_count') + 1
+        record.save(update_fields=['comment_count'])
+
+    def increase_ping_count(self):
+        record, _ = PostRecord.objects.get_or_create(post=self)
+        record.ping_count = F('ping_count') + 1
+        record.save(update_fields=['ping_count'])
+
+    def increase_views_count(self):
+        record, _ = PostRecord.objects.get_or_create(post=self)
+        record.views_count = F('views_count') + 1
+        record.save(update_fields=['views_count'])
 
     # GRAPPELLI SETTINGS
 
@@ -283,8 +393,9 @@ class AbstractPostRecord(models.Model):
             default=0,
             blank=True,
             editable=False,
-            db_index=True,
             verbose_name=_('Score'))
+
+    objects = PostRecordManager()
 
     class Meta:
         abstract = True
@@ -303,7 +414,7 @@ class AbstractTag(Slugged):
             unique=True,
             max_length=63,
             verbose_name=_('Name'))
-    description = models.TextField(
+    description = fields.TextField(
             blank=True,
             verbose_name=_('Description'),
             help_text=_('The description is usually not prominent.'))
@@ -318,17 +429,11 @@ class AbstractTag(Slugged):
         return self.name
 
     def get_absolute_url(self):
-        kwargs = {
-            #'tag_pk': self.pk,
-            'tag_slug': self.slug,
-        }
+        kwargs = {'tag_slug': self.slug}
         return reverse('post_list', kwargs=kwargs)
 
     def get_feed_url(self):
-        kwargs = {
-            #'tag_pk': self.pk,
-            'tag_slug': self.slug,
-        }
+        kwargs = {'tag_slug': self.slug}
         return full_reverse('post_feed', kwargs=kwargs)
 
     # GRAPPELLI SETTINGS

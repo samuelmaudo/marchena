@@ -1,0 +1,15 @@
+
+{% if comment_list %}
+    <h4 class="m-t-2 m-b-1">Comments:</h4>
+  {% for comment in comment_list %}
+    <h5>
+    {% if comment.get_author_url %}
+      <a href="{{ comment.get_author_url }}" rel="nofollow">{{ comment.get_author_name }}</a>
+    {% else %}
+      {{ comment.get_author_name }}
+    {% endif %}
+      <small class="text-muted">{{ comment.get_date|time:'g:i A' }} on {{ comment.get_date|date:'F j, Y' }}</small>
+    </h5>
+    {{ comment.get_content }}
+  {% endfor %}
+{% endif %}

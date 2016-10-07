@@ -287,8 +287,6 @@ class TagMixin(object):
     def get_queryset(self, request):
         qs = super(TagMixin, self).get_queryset(request)
         qs = qs.annotate(post_count=Count('posts'))
-        if not request.user.is_superuser:
-            qs = qs.filter(blog__authors=request.user)
         return qs
 
 class TagAdmin(TagMixin, BlogModelAdmin):

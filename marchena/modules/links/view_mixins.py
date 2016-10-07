@@ -26,19 +26,13 @@ class LinkCategoryMixin(object):
             category = None
             category_pk = None
             category_slug = None
-            if self.link_category:
-                if isinstance(self.link_category, six.integer_types):
-                    category_pk = self.link_category
-                elif isinstance(self.link_category, six.string_types):
-                    category_slug = self.link_category
-            else:
+            if not self.link_category:
                 category_pk = self.kwargs.get('link_category_pk')
                 category_slug = self.kwargs.get('link_category_slug')
-                if (not category_pk
-                        and not category_slug
-                        and (self, 'allow_get_parameters', False)):
-                    category_slug = (self.request.GET.get('link_category')
-                                     or self.request.GET.get('c'))
+            elif isinstance(self.link_category, six.integer_types):
+                category_pk = self.link_category
+            elif isinstance(self.link_category, six.string_types):
+                category_slug = self.link_category
 
             try:
                 if category_pk:

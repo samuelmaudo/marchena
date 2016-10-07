@@ -7,37 +7,32 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
-      <li class="active">Archive</li>
-    </ol>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item active">Archive</li>
 {% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
   {% block title %}
-    <div class="page-header">
-      <h1>Archive</h1>
-    </div>
+    <h1>Archive</h1>
   {% endblock %}
-    <article>
+    <hr>
   {% for d in date_list %}
     {% ifchanged d.year %}
       {% if not forloop.first %}
-        </ul>
-      </p>
-      <hr>
+      </ul>
+    </p>
+    <hr>
       {% endif %}
-      <p>
-        <h2><a href="{% url 'archive_year' d.year %}">{{ d|date:'Y' }}</a></h2>
-        <ul class="list-unstyled">
+    <p>
+      <h2><a href="{% url 'archive_year' d.year %}">{{ d|date:'Y' }}</a></h2>
+      <ul class="list-unstyled">
     {% endifchanged %}
-        <li><a href="{% url 'archive_month' d.year d.month %}">{{ d|date:'F' }}</a></li>
+      <li><a href="{% url 'archive_month' d.year d.month %}">{{ d|date:'F' }}</a></li>
     {% if forloop.last %}
-        </ul>
-      </p>
-      <hr>
+      </ul>
+    </p>
+    <hr>
     {% endif %}
   {% endfor %}
-    </article>
 {% endblock %}

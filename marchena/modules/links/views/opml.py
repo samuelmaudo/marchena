@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from yepes.apps import apps
+from yepes.conf import settings
 from yepes.views import ListView
 
 from marchena.modules.blogs.view_mixins import BlogMixin
@@ -17,7 +18,7 @@ class LinksOpmlView(BlogMixin, LinkCategoryMixin, ListView):
     content_type = 'application/xml'
     link_category_field = 'pk'
     model = LinkCategory
-    require_blog = True
+    require_blog = settings.BLOG_MULTIPLE
     require_link_category = False
     template_name = 'links_opml.xml'
 

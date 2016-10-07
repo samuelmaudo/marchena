@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from yepes.apps import apps
+from yepes.view_mixins import CanonicalMixin
 from yepes.views import ListView
 
 BlogMixin = apps.get_class('blogs.view_mixins', 'BlogMixin')
@@ -11,11 +12,15 @@ PostListView = apps.get_class('posts.views', 'PostListView')
 Blog = apps.get_model('blogs', 'Blog')
 
 
-class BlogDetailView(BlogMixin, PostListView):
+class BlogDetailView(BlogMixin, CanonicalMixin, PostListView):
     """
     Displays a list of published posts that belong to the given blog.
     """
     require_blog = True
+
+    def get_canonical_path(self, request):
+        blog = self.get_blog()
+        return blog.get_absolute_url()
 
     def get_template_names(self):
         names = super(BlogDetailView, self).get_template_names()

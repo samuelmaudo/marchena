@@ -27,19 +27,13 @@ class CategoryMixin(object):
             category = None
             category_pk = None
             category_slug = None
-            if self.category:
-                if isinstance(self.category, six.integer_types):
-                    category_pk = self.category
-                elif isinstance(self.category, six.string_types):
-                    category_slug = self.category
-            else:
+            if not self.category:
                 category_pk = self.kwargs.get('category_pk')
                 category_slug = self.kwargs.get('category_slug')
-                if (not category_pk
-                        and not category_slug
-                        and (self, 'allow_get_parameters', False)):
-                    category_slug = (self.request.GET.get('category')
-                                     or self.request.GET.get('c'))
+            elif isinstance(self.category, six.integer_types):
+                category_pk = self.category
+            elif isinstance(self.category, six.string_types):
+                category_slug = self.category
 
             try:
                 if category_pk:
@@ -85,19 +79,13 @@ class TagMixin(object):
             tag = None
             tag_pk = None
             tag_slug = None
-            if self.tag:
-                if isinstance(self.tag, six.integer_types):
-                    tag_pk = self.tag
-                elif isinstance(self.tag, six.string_types):
-                    tag_slug = self.tag
-            else:
+            if not self.tag:
                 tag_pk = self.kwargs.get('tag_pk')
                 tag_slug = self.kwargs.get('tag_slug')
-                if (not tag_pk
-                        and not tag_slug
-                        and (self, 'allow_get_parameters', False)):
-                    tag_slug = (self.request.GET.get('tag')
-                                or self.request.GET.get('t'))
+            elif isinstance(self.tag, six.integer_types):
+                tag_pk = self.tag
+            elif isinstance(self.tag, six.string_types):
+                tag_slug = self.tag
 
             try:
                 if tag_pk:

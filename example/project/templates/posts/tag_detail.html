@@ -1,4 +1,4 @@
-{% extends 'marchena/post_list.html' %}
+{% extends 'posts/post_list.html' %}
 
 <!-- META TITLE -->
 {% block meta_title %}
@@ -7,25 +7,21 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
   {% if blog %}
-      <li><a href="{% url 'blog_list' %}">Blogs</a></li>
-      <li>{{ blog.get_link }}</li>
-      <li><a href="{% url 'tag_list' blog_slug=blog.slug %}">Tags</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Blogs</a></li>
+    <li class="breadcrumb-item">{{ blog.get_link }}</li>
+    <li class="breadcrumb-item"><a href="{% url 'tag_list' blog_slug=blog.slug %}">Tags</a></li>
   {% else %}
-      <li><a href="{% url 'tag_list' %}">Tags</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'tag_list' %}">Tags</a></li>
   {% endif %}
-      <li class="active">{{ tag }}</li>
-    </ol>
+    <li class="breadcrumb-item active">{{ tag }}</li>
 {% endblock %}
 
 <!-- TITLE -->
 {% block title %}
-    <div class="page-header">
-      <h1>
-        {{ tag }}{% if blog %} on {{ blog }}{% endif %}
-        <small><a href="{{ tag.get_feed_url }}"><span class="glyphicon glyphicon-bullhorn"></span></a></small>
-      </h1>
-    </div>
+    <h1>
+      {{ tag }}{% if blog %} on {{ blog }}{% endif %}
+      <a class="btn btn-sm btn-warning d-inline" href="{{ tag.get_feed_url }}">Feed</a>
+    </h1>
 {% endblock %}

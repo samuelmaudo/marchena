@@ -121,12 +121,16 @@ LOGGING = {
     }
 }
 
+# Marchena settings.
+BLOG_MULTIPLE = True
+
 # Media settings.
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
 MEDIA_URL = '/media/'
 
 # Middleware settings.
 MIDDLEWARE_CLASSES = (
+    'yepes.middleware.client_ip.ClientIpMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

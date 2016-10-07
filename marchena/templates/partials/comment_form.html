@@ -1,0 +1,40 @@
+
+    <form class="comment-form" method="post">
+      {% csrf_token %}
+  {% for field in comment_form.hidden_fields %}
+      {{ field }}
+  {% endfor %}
+  {% for field in comment_form.visible_fields %}
+      <div class="form-field">
+        <label for="field-{{ field.html_name }}" class="form-field-label">{{ field.label }}</label>
+    {% if field.html_name == 'comment' %}
+        <textarea id="field-{{ field.html_name }}"
+            class="form-field-control"
+            name="{{ field.html_name }}"
+            rows="5"
+        >{{ field.value|default:'' }}</textarea>
+    {% else %}
+        <input id="field-{{ field.html_name }}"
+            class="form-field-control"
+            name="{{ field.html_name }}"
+            type="text"
+      {% if field.field.max_length %}
+            maxlength="{{ field.field.max_length }}"
+      {% endif %}
+      {% if field.value %}
+            value="{{ field.value }}"
+      {% endif %}
+        >
+    {% endif %}
+    {% for error in field.errors %}
+        <p class="form-field-errors">{{ error }}</p>
+    {% endfor %}
+    {% if field.help_text %}
+        <p class="form-field-help">{{ field.help_text }}</p>
+    {% endif %}
+      </div>
+  {% endfor %}
+      <div class="form-submit">
+        <button type="submit" class="form-submit-button">Post Comment</button>
+      </div>
+    </form>

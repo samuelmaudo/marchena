@@ -26,19 +26,13 @@ class BlogMixin(object):
             blog = None
             blog_pk = None
             blog_slug = None
-            if self.blog:
-                if isinstance(self.blog, six.integer_types):
-                    blog_pk = self.blog
-                elif isinstance(self.blog, six.string_types):
-                    blog_slug = self.blog
-            else:
+            if not self.blog:
                 blog_pk = self.kwargs.get('blog_pk')
                 blog_slug = self.kwargs.get('blog_slug')
-                if (not blog_pk
-                        and not blog_slug
-                        and (self, 'allow_get_parameters', False)):
-                    blog_slug = (self.request.GET.get('blog')
-                                 or self.request.GET.get('b'))
+            elif isinstance(self.blog, six.integer_types):
+                blog_pk = self.blog
+            elif isinstance(self.blog, six.string_types):
+                blog_slug = self.blog
 
             if blog_pk:
                 blog = Blog.cache.get(blog_pk)

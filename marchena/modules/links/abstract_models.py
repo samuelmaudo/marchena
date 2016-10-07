@@ -8,6 +8,9 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import fields
+from yepes.apps import apps
+from yepes.cache import LookupTable
+from yepes.conf import settings
 from yepes.model_mixins import (
     Illustrated,
     Logged,
@@ -23,6 +26,7 @@ class AbstractLink(Illustrated, Logged):
             'blogs.Blog',
             related_name='links',
             verbose_name=_('Blog'))
+
     name = fields.CharField(
             max_length=63,
             verbose_name=_('Name'),
@@ -36,15 +40,17 @@ class AbstractLink(Illustrated, Logged):
             max_length=127,
             verbose_name=_('RSS Address'),
             help_text=_("Example: <code>http://www.djangoproject.com/rss.xml</code> &mdash; don't forget the <code>http://</code>"))
-    description = models.CharField(
+    description = fields.CharField(
             max_length=255,
             blank=True,
             verbose_name=_('Description'),
             help_text=_('This will be shown when someone hovers the link in the blogroll, or optionally below the link.'))
 
-    category = models.ForeignKey(
+    category = fields.CachedForeignKey(
             'LinkCategory',
+            blank=True,
             null=True,
+            on_delete=models.PROTECT,
             related_name='links',
             verbose_name=_('Category'))
 
@@ -70,14 +76,20 @@ class AbstractLinkCategory(Slugged):
             'blogs.Blog',
             related_name='link_categories',
             verbose_name=_('Blog'))
+
     name = fields.CharField(
             unique=True,
             max_length=63,
             verbose_name=_('Name'))
-    description = models.TextField(
+    description = fields.TextField(
             blank=True,
             verbose_name=_('Description'),
             help_text=_('The description is usually not prominent.'))
+
+    objects = models.Manager()
+    cache = LookupTable(
+            indexed_fields=['slug'],
+            default_registry_key='links:DEFAULT_CATEGORY')
 
     class Meta:
         abstract = True
@@ -89,12 +101,9 @@ class AbstractLinkCategory(Slugged):
         return self.name
 
     def get_absolute_url(self):
-        kwargs = {
-            #'blog_pk': self.blog.pk,
-            'blog_slug': self.blog.slug,
-            #'link_category_pk': self.pk,
-            'link_category_slug': self.slug,
-        }
+        kwargs = {'link_category_slug': self.slug}
+        if settings.BLOG_MULTIPLE:
+            kwargs['blog_slug'] = self.blog.slug
         return reverse('link_list', kwargs=kwargs)
 
     # GRAPPELLI SETTINGS

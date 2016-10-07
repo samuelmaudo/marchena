@@ -11,25 +11,22 @@
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-      <li><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
   {% if blog %}
-      <li><a href="{% url 'blog_list' %}">Blogs</a></li>
-      <li>{{ blog.get_link }}</li>
+    <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Blogs</a></li>
+    <li class="breadcrumb-item">{{ blog.get_link }}</li>
   {% endif %}
-      <li class="active">Tags</li>
-    </ol>
+    <li class="breadcrumb-item active">Tags</li>
 {% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
-    <div class="page-header">
   {% if blog %}
-      <h1>{{ blog.title }}'s tags</h1>
+    <h1>{{ blog.title }}'s tags</h1>
   {% else %}
-      <h1>Tags</h1>
+    <h1>Tags</h1>
   {% endif %}
-    </div>
+    <hr>
   {% for tag in tag_list %}
     <p>{{ tag.get_link }}</p>
     {% if tag.description %}
