@@ -36,6 +36,8 @@ from yepes.model_mixins import (
 from yepes.types import Undefined
 from yepes.urlresolvers import full_reverse
 
+from marchena.modules.attachments.processors import attachment_tags
+
 PostManager = apps.get_class('posts.managers', 'PostManager')
 PostRecordManager = apps.get_class('posts.managers', 'PostRecordManager')
 
@@ -119,6 +121,7 @@ class AbstractPost(Illustrated, Displayable, Logged):
             help_text=_('Excerpts are optional hand-crafted summaries of your content.'))
     content = fields.RichTextField(
             blank=True,
+            processors=[attachment_tags],
             verbose_name=_('Content'))
 
     authors = models.ManyToManyField(

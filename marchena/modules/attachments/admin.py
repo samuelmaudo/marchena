@@ -24,6 +24,7 @@ class AttachmentAdmin(admin.ModelAdmin):
         (None, {
             'fields': [
                 'title',
+                'guid',
             ],
         }),
         (None, {
@@ -51,16 +52,17 @@ class AttachmentAdmin(admin.ModelAdmin):
                 'height',
             ],
         }),
-        (_('HTML Tags'), {
+        (_('Tags'), {
             'classes': [
                 'grp-collapse',
                 'grp-closed',
             ],
             'fields': [
                 'admin_audio_tag',
-                'admin_image_tag',
-                'admin_video_tag',
                 'admin_iframe_tag',
+                'admin_image_tag',
+                'admin_file_link',
+                'admin_video_tag',
             ],
         }),
     ]
@@ -76,18 +78,20 @@ class AttachmentAdmin(admin.ModelAdmin):
     list_filter = ['category']
     raw_id_fields = ['category']
     readonly_fields = [
+        'guid',
         'get_display_size',
         'width',
         'height',
         'admin_audio_tag',
-        'admin_image_tag',
-        'admin_video_tag',
         'admin_iframe_tag',
+        'admin_image_tag',
+        'admin_file_link',
+        'admin_video_tag',
     ]
     search_fields = ['title', 'file', 'external_file']
 
     def admin_audio_tag(self, obj):
-        return escape(obj.get_audio_tag())
+        return '[audio]{0}[/audio]'.format(obj.guid)
     admin_audio_tag.short_description = _('Audio')
 
     def admin_category(self, obj):
@@ -102,25 +106,33 @@ class AttachmentAdmin(admin.ModelAdmin):
     admin_category.allow_tags = True
     admin_category.short_description = _('category')
 
+    def admin_file_link(self, obj):
+        return '[link]{0}[/link]'.format(obj.guid)
+    admin_file_link.short_description = _('Link')
+
     def admin_iframe_tag(self, obj):
-        return escape(obj.get_iframe_tag())
+        return '[iframe]{0}[/iframe]'.format(obj.guid)
     admin_iframe_tag.short_description = _('IFrame')
 
     def admin_image_tag(self, obj):
-        return escape(obj.get_image_tag())
+        return '[image]{0}[/image]'.format(obj.guid)
     admin_image_tag.short_description = _('Image')
 
     def admin_video_tag(self, obj):
-        return escape(obj.get_video_tag())
+        return '[video]{0}[/video]'.format(obj.guid)
     admin_video_tag.short_description = _('Video')
 
     def admin_thumbnail(self, obj):
-        if obj.is_image:
-            config = ConfigurationProxy(60, 60, mode='fill')
-            thumb = obj.image.get_thumbnail(config)
-            return thumb.get_tag(style='border: 1px solid #e0e0e0')
-        else:
+        if not obj.is_image:
             return ''
+
+        config = ConfigurationProxy(60, 60, mode='fill')
+        try:
+            thumb = obj.image.get_thumbnail(config)
+        except IOError:
+            return ''
+
+        return thumb.get_tag(style='border: 1px solid #e0e0e0')
     admin_thumbnail.allow_tags = True
     admin_thumbnail.short_description = ''
 

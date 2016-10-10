@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import marchena.modules.attachments.processors
 import yepes.model_mixins.illustrated
 import django.utils.timezone
 import yepes.fields
@@ -75,7 +76,7 @@ class Migration(migrations.Migration):
                 ('subtitle', yepes.fields.CharField(help_text='Subtitles are optional complements of your title.', max_length=255, verbose_name='Subtitle', blank=True)),
                 ('excerpt', yepes.fields.RichTextField(help_text='Excerpts are optional hand-crafted summaries of your content.', verbose_name='Excerpt', blank=True)),
                 ('excerpt_html', yepes.fields.TextField(verbose_name='Excerpt', editable=False, db_column='excerpt_html', blank=True)),
-                ('content', yepes.fields.RichTextField(verbose_name='Content', blank=True)),
+                ('content', yepes.fields.RichTextField(verbose_name='Content', processors=[marchena.modules.attachments.processors.attachment_tags], blank=True)),
                 ('content_html', yepes.fields.TextField(verbose_name='Content', editable=False, db_column='content_html', blank=True)),
                 ('authors', models.ManyToManyField(related_name='posts', verbose_name='Authors', to='authors.Author')),
                 ('categories', models.ManyToManyField(related_name='posts', verbose_name='Categories', to='posts.Category', blank=True)),
