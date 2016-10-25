@@ -7,6 +7,7 @@ from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import ugettext as _
 
 from yepes.apps import apps
+from yepes.conf import settings
 from yepes.urlresolvers import full_reverse
 
 AuthorMixin = apps.get_class('authors.view_mixins', 'AuthorMixin')
@@ -102,6 +103,7 @@ class AuthorPostsRssFeed(AuthorMixin, BlogMixin, PostsRssFeed):
         else:
             context = {'author': author, 'blog': blog}
             template = _("{author}'s posts on {blog}")
+
         return template.format(**context)
 
     def link(self, obj):
@@ -125,6 +127,7 @@ class AuthorPostsRssFeed(AuthorMixin, BlogMixin, PostsRssFeed):
         else:
             context = {'author': author, 'blog': blog}
             template = _('Latest posts authored by "{author}" on "{blog}".')
+
         return template.format(**context)
 
 
@@ -163,7 +166,7 @@ class BlogPostsAtomFeed(BlogPostsRssFeed):
 class CategoryPostsRssFeed(BlogMixin, CategoryMixin, PostsRssFeed):
 
     category_field = 'categories'
-    require_blog = True
+    require_blog = settings.BLOG_MULTIPLE
     require_category = True
 
     def get_object(self, *args, **kwargs):
@@ -174,24 +177,32 @@ class CategoryPostsRssFeed(BlogMixin, CategoryMixin, PostsRssFeed):
 
     def title(self, obj):
         blog, category= obj
-        context = {'blog': blog, 'category': category}
-        template = _('{category} on {blog}')
+        context = {'category': category}
+        if settings.BLOG_MULTIPLE:
+            context['blog'] = blog
+            template = _('{category} on {blog}')
+        else:
+            template = '{category}'
+
         return template.format(**context)
 
     def link(self, obj):
-        blog, category= obj
-        kwargs = {
-            #'blog_pk': blog.pk,
-            'blog_slug': blog.slug,
-            #'category_pk': category.pk,
-            'category_slug': category.slug,
-        }
+        blog, category = obj
+        kwargs = {'category_slug': category.slug}
+        if settings.BLOG_MULTIPLE:
+            kwargs['blog_slug'] = blog.slug
+
         return full_reverse('post_list', kwargs=kwargs)
 
     def description(self, obj):
         blog, category= obj
-        context = {'blog': blog, 'category': category}
-        template = _('Latest posts from "{category}" on "{blog}".')
+        context = {'category': category}
+        if settings.BLOG_MULTIPLE:
+            context['blog'] = blog
+            template = _('Latest posts from "{category}" on "{blog}".')
+        else:
+            template = _('Latest posts from "{category}".')
+
         return template.format(**context)
 
 
@@ -219,6 +230,7 @@ class TagPostsRssFeed(BlogMixin, TagMixin, PostsRssFeed):
         else:
             context = {'blog': blog, 'tag': tag}
             template = _('{tag} on {blog}')
+
         return template.format(**context)
 
     def link(self, obj):
@@ -242,6 +254,7 @@ class TagPostsRssFeed(BlogMixin, TagMixin, PostsRssFeed):
         else:
             context = {'blog': blog, 'tag': tag}
             template = _('Latest posts from "{tag}" on "{blog}".')
+
         return template.format(**context)
 
 
