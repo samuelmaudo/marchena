@@ -130,11 +130,17 @@ class AbstractAttachment(Logged, Calculated):
             return self.image.width
 
     def get_audio_tag(self, **attrs):
+        wrap = attrs.pop('wrap', False)
+
         attrs['src'] = self.get_file_url()
         attrs.setdefault('controls', True)
         attrs.setdefault('preload', 'none')
         content = self.get_file_link(text=(self.alt or self.title))
-        return make_double_tag('audio', content, attrs)
+        tag = make_double_tag('audio', content, attrs)
+        if wrap:
+            tag = make_double_tag('div', tag, {'class': 'audio-wrap'})
+
+        return tag
 
     def get_display_size(self):
         if self.size is None:
@@ -197,6 +203,8 @@ class AbstractAttachment(Logged, Calculated):
         return self.get_file_link(**attrs)
 
     def get_iframe_tag(self, **attrs):
+        wrap = attrs.pop('wrap', False)
+
         attrs['src'] = self.get_file_url()
         attrs.setdefault('width', self.width or 640)
         attrs.setdefault('height', self.height or 360)
@@ -205,9 +213,15 @@ class AbstractAttachment(Logged, Calculated):
         attrs.setdefault('mozallowfullscreen', True)
         attrs.setdefault('allowfullscreen', True)
         content = self.get_file_link(text=(self.alt or self.title))
-        return make_double_tag('iframe', content, attrs)
+        tag = make_double_tag('iframe', content, attrs)
+        if wrap:
+            tag = make_double_tag('div', tag, {'class': 'iframe-wrap'})
+
+        return tag
 
     def get_image_tag(self, **attrs):
+        wrap = attrs.pop('wrap', False)
+
         attrs['src'] = self.get_file_url()
         if self.width:
             attrs.setdefault('width', self.width)
@@ -215,16 +229,26 @@ class AbstractAttachment(Logged, Calculated):
             attrs.setdefault('height', self.height)
 
         attrs.setdefault('alt', self.alt or self.title)
-        return make_single_tag('img', attrs)
+        tag = make_single_tag('img', attrs)
+        if wrap:
+            tag = make_double_tag('div', tag, {'class': 'image-wrap'})
+
+        return tag
 
     def get_video_tag(self, **attrs):
+        wrap = attrs.pop('wrap', False)
+
         attrs['src'] = self.get_file_url()
         attrs.setdefault('width', self.width or 640)
         attrs.setdefault('height', self.height or 360)
         attrs.setdefault('controls', True)
         attrs.setdefault('preload', 'metadata')
         content = self.get_file_link(text=(self.alt or self.title))
-        return make_double_tag('video', content, attrs)
+        tag = make_double_tag('video', content, attrs)
+        if wrap:
+            tag = make_double_tag('div', tag, {'class': 'video-wrap'})
+
+        return tag
 
     # PROPERTIES
 

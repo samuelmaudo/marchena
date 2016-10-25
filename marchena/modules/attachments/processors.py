@@ -12,6 +12,7 @@ __all__ = ('attachment_tags', )
 
 
 TAGS_RE = re.compile(r"""
+    (?P<open_paragraph><p[^>]*>\s*)?
     \[
         (?P<tag>audio|iframe|image|link|video)
         (?:=(?P<arg>[a-zA-Z0-9]+))?
@@ -22,8 +23,9 @@ TAGS_RE = re.compile(r"""
     (?P<content>[^[\]]+)
     \[
         /
-        \1
+        \2
     \]
+    (?P<close_paragraph>\s*</p>)?
 """, re.VERBOSE)
 
 
@@ -37,7 +39,7 @@ def replacement(matchobj):
         if attachment_id is None or ' ' in attachment_id:
             return matchobj.group(0)
 
-    if len(attachment_id) < 10 and attachment_id.isnumber():
+    if len(attachment_id) < 10 and attachment_id.isdigit():
         constraints = {'pk__exact': attachment_id}
     else:
         constraints = {'guid__exact': attachment_id}
@@ -64,25 +66,45 @@ def replacement(matchobj):
                 value = value.strip("'")
             elif value.startswith('"'):
                 value = value.strip('"')
+            elif value == '' or value == key or value.lower() == 'true':
+                value = True
+            elif value.lower() == 'false':
+                value = False
             attrs[key] = value
 
     tag = matchobj.group('tag')
     if tag == 'audio':
-        return attachment.get_audio_tag(**attrs)
+        html = attachment.get_audio_tag(**attrs)
     elif tag == 'iframe':
-        return attachment.get_iframe_tag(**attrs)
+        html = attachment.get_iframe_tag(**attrs)
     elif tag == 'image':
         if content:
             attrs['alt'] = content
-        return attachment.get_image_tag(**attrs)
+        html = attachment.get_image_tag(**attrs)
     elif tag == 'link':
         if content:
             attrs['text'] = content
-        return attachment.get_file_link(**attrs)
+        html = attachment.get_file_link(**attrs)
     elif tag == 'video':
-        return attachment.get_video_tag(**attrs)
+        html = attachment.get_video_tag(**attrs)
     else:
         return matchobj.group(0)
+
+    open_paragraph = matchobj.group('open_paragraph')
+    close_paragraph = matchobj.group('close_paragraph')
+    if (open_paragraph is not None and close_paragraph is not None
+            and html.startswith('<div') and html.endswith('</div>')):
+        # If the element is wrapped into a div and its parent is an
+        # empty paragraph, remove the paragraph.
+        return html
+
+    if open_paragraph is not None:
+        html = open_paragraph + html
+
+    if close_paragraph is not None:
+        html = html + close_paragraph
+
+    return html
 
 
 def attachment_tags(text):

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db.models import Count
 from django.utils.html import escape, format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 from yepes import admin
 from yepes.apps import apps

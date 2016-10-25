@@ -40,6 +40,16 @@ class AttachmentTagsTest(TestCase):
             </audio>
         """, self.attachment.get_audio_tag(preload='auto'))
 
+        self.assertHTMLEqual("""
+            <div class="audio-wrap">
+              <audio src="http://www.example.org/" controls preload="none">
+                <a href="http://www.example.org/" download>
+                  Example
+                </a>
+              </audio>
+            </div>
+        """, self.attachment.get_audio_tag(wrap=True))
+
     def test_file_link(self):
         self.assertHTMLEqual("""
             <a href="http://www.example.org/" download>
@@ -88,6 +98,16 @@ class AttachmentTagsTest(TestCase):
         tag = attachment_tags(text.format(self.attachment.guid))
         self.assertHTMLEqual(tag, self.attachment.get_iframe_tag(style='width:100%'))
 
+        self.assertHTMLEqual("""
+            <div class="iframe-wrap">
+              <iframe src="http://www.example.org/" width="640" height="360" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen>
+                <a href="http://www.example.org/" download>
+                  Example
+                </a>
+              </iframe>
+            </div>
+        """, self.attachment.get_iframe_tag(wrap=True))
+
     def test_image_tag(self):
         self.assertHTMLEqual("""
             <img src="http://www.example.org/" alt="Example">
@@ -100,6 +120,12 @@ class AttachmentTagsTest(TestCase):
         self.assertHTMLEqual("""
             <img src="http://www.example.org/" alt="Image">
         """, self.attachment.get_image_tag(alt='Image'))
+
+        self.assertHTMLEqual("""
+            <div class="image-wrap">
+              <img src="http://www.example.org/" alt="Example">
+            </div>
+        """, self.attachment.get_image_tag(wrap=True))
 
     def test_video_tag(self):
         self.assertHTMLEqual("""
@@ -125,6 +151,16 @@ class AttachmentTagsTest(TestCase):
               </a>
             </video>
         """, self.attachment.get_video_tag(preload='auto'))
+
+        self.assertHTMLEqual("""
+            <div class="video-wrap">
+              <video src="http://www.example.org/" width="640" height="360" controls preload="metadata">
+                <a href="http://www.example.org/" download>
+                  Example
+                </a>
+              </video>
+            </div>
+        """, self.attachment.get_video_tag(wrap=True))
 
 
 class TextProcessorTest(TestCase):
@@ -154,6 +190,14 @@ class TextProcessorTest(TestCase):
         text = '[audio style="width:100%"]{0}[/audio]'
         tag = attachment_tags(text.format(self.attachment.guid))
         self.assertHTMLEqual(tag, self.attachment.get_audio_tag(style='width:100%'))
+
+        text = '[audio wrap=True]{0}[/audio]'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_audio_tag(wrap=True))
+
+        text = '<p>[audio wrap=True]{0}[/audio]</p>'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_audio_tag(wrap=True))
 
     def test_file_link(self):
         text = '[link]{0}[/link]'
@@ -197,6 +241,14 @@ class TextProcessorTest(TestCase):
         tag = attachment_tags(text.format(self.attachment.guid))
         self.assertHTMLEqual(tag, self.attachment.get_iframe_tag(style='width:100%'))
 
+        text = '[iframe wrap=True]{0}[/iframe]'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_iframe_tag(wrap=True))
+
+        text = '<p>[iframe wrap=True]{0}[/iframe]</p>'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_iframe_tag(wrap=True))
+
     def test_image_tag(self):
         text = '[image]{0}[/image]'
         tag = attachment_tags(text.format(self.attachment.guid))
@@ -218,6 +270,14 @@ class TextProcessorTest(TestCase):
         tag = attachment_tags(text.format(self.attachment.guid))
         self.assertHTMLEqual(tag, self.attachment.get_image_tag(style='width:100%'))
 
+        text = '[image wrap=True]{0}[/image]'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_image_tag(wrap=True))
+
+        text = '<p>[image wrap=True]{0}[/image]</p>'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_image_tag(wrap=True))
+
     def test_video_tag(self):
         text = '[video]{0}[/video]'
         tag = attachment_tags(text.format(self.attachment.guid))
@@ -238,4 +298,12 @@ class TextProcessorTest(TestCase):
         text = '[video style="width:100%"]{0}[/video]'
         tag = attachment_tags(text.format(self.attachment.guid))
         self.assertHTMLEqual(tag, self.attachment.get_video_tag(style='width:100%'))
+
+        text = '[video wrap=True]{0}[/video]'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_video_tag(wrap=True))
+
+        text = '<p>[video wrap=True]{0}[/video]</p>'
+        tag = attachment_tags(text.format(self.attachment.guid))
+        self.assertHTMLEqual(tag, self.attachment.get_video_tag(wrap=True))
 
