@@ -255,9 +255,8 @@ class PostAdmin(PostMixin, admin.DisplayableMixin, BlogModelAdmin):
     pass
 
 
-class TagMixin(object):
+class TagAdmin(admin.ModelAdmin):
 
-    blog_field = 'posts__blog'
     fieldsets = [
         (None, {
             'fields': [
@@ -285,12 +284,9 @@ class TagMixin(object):
     admin_post_count.short_description = _('Posts')
 
     def get_queryset(self, request):
-        qs = super(TagMixin, self).get_queryset(request)
+        qs = super(TagAdmin, self).get_queryset(request)
         qs = qs.annotate(post_count=Count('posts'))
         return qs
-
-class TagAdmin(TagMixin, BlogModelAdmin):
-    pass
 
 
 admin.site.register(Category, CategoryAdmin)

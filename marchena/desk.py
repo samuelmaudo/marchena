@@ -31,7 +31,6 @@ CommentMixin = apps.get_class('comments.admin', 'CommentMixin')
 LinkMixin = apps.get_class('links.admin', 'LinkMixin')
 LinkCategoryMixin = apps.get_class('links.admin', 'LinkCategoryMixin')
 PostMixin = apps.get_class('posts.admin', 'PostMixin')
-TagMixin = apps.get_class('posts.admin', 'TagMixin')
 
 Author = apps.get_model('authors', 'Author')
 Blog = apps.get_model('blogs', 'Blog')
@@ -420,15 +419,10 @@ class PostDesk(PostMixin, admin.DisplayableMixin, BlogModelDesk):
     pass
 
 
-class TagDesk(TagMixin, BlogModelDesk):
-    pass
-
-
 desk_site.register(Author, AuthorDesk)
 desk_site.register(Category, CategoryDesk)
 desk_site.register(Comment, CommentDesk)
 desk_site.register(Link, LinkDesk)
 desk_site.register(LinkCategory, LinkCategoryDesk)
 desk_site.register(Post, PostDesk)
-desk_site.register(Tag, TagDesk)
 
