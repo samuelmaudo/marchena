@@ -37,11 +37,11 @@ class BaseComment(Nestable, Logged, Linked):
             verbose_name=_('Parent'))
 
     author_name = fields.CharField(
-            blank=True,
+            blank=False,
             max_length=63,
             verbose_name=_('Name'))
     author_email = fields.EmailField(
-            blank=True,
+            blank=False,
             max_length=63,
             verbose_name=_('Email Address'))
     author_url = models.URLField(
@@ -55,9 +55,8 @@ class BaseComment(Nestable, Logged, Linked):
             protocol='both',
             unpack_ipv4=True,
             verbose_name=_('IP Address'))
-    user_agent = fields.CharField(
+    user_agent = fields.TextField(
             blank=True,
-            max_length=255,
             verbose_name=_('User Agent'))
 
     karma = fields.IntegerField(

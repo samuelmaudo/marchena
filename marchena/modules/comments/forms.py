@@ -118,7 +118,7 @@ class CommentForm(forms.Form):
                 if method is not None:
                     try:
                         value = method()
-                    except ValidationError as e:
+                    except forms.ValidationError as e:
                         self.add_error(alias, e)
                     else:
                         self.cleaned_data[alias] = value
@@ -129,13 +129,13 @@ class CommentForm(forms.Form):
             except FieldDoesNotExist:
                 continue
 
-            raw_value = self.cleaned_data[alias]
+            raw_value = self.cleaned_data.get(alias)
             if field.blank and raw_value in field.empty_values:
                 continue
 
             try:
                 value = field.clean(raw_value, None)
-            except ValidationError as e:
+            except forms.ValidationError as e:
                 self.add_error(alias, e)
             else:
                 self.cleaned_data[alias] = value

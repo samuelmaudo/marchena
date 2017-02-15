@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='comment',
             name='content',
-            field=yepes.fields.RichTextField(verbose_name='Comment', blank=True),
+            field=yepes.fields.RichTextField(verbose_name='Comment'),
         ),
         migrations.AddField(
             model_name='comment',
