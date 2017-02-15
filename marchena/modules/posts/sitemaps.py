@@ -15,15 +15,20 @@ Tag = apps.get_model('posts', 'Tag')
 
 class CategorySitemap(FullUrlSitemap):
 
-    changefreq = 'weekly'
-    priority = 0.3
+    changefreq = 'daily'
+    priority = 0.6
 
     def __init__(self, blog_pk=None, blog_slug=None):
         self.blog_pk = blog_pk
         self.blog_slug = blog_slug
 
+    def get_queryset(self):
+        qs = Category.objects.get_queryset()
+        qs = qs.defer('description')
+        return qs.order_by('-pk')
+
     def items(self):
-        qs = Category.objects.order_by('-pk')
+        qs = self.get_queryset()
         if self.blog_pk is not None:
             qs = qs.filter(blog_id=self.blog_pk)
         elif self.blog_slug is not None:
@@ -39,6 +44,13 @@ class NewsSitemap(FullUrlSitemap):
         self.blog_pk = blog_pk
         self.blog_slug = blog_slug
         self.published_from = published_from
+
+    def get_queryset(self):
+        qs = Post.objects.get_queryset()
+        qs = qs.published()
+        qs = qs.defer('excerpt', 'excerpt_html')
+        qs = qs.defer('content', 'content_html')
+        return qs.order_by('-publish_from')
 
     def get_urls(self, page=1, *args, **kwargs):
         if self.paginate:
@@ -69,8 +81,7 @@ class NewsSitemap(FullUrlSitemap):
         return urls
 
     def items(self):
-        qs = Post.objects.order_by('-publish_from')
-        qs = qs.published()
+        qs = self.get_queryset()
         if self.blog_pk is not None:
             qs = qs.filter(blog_id=self.blog_pk)
         elif self.blog_slug is not None:
@@ -105,13 +116,22 @@ class NewsSitemap(FullUrlSitemap):
 
 class PostSitemap(FullUrlSitemap):
 
+    changefreq = 'weekly'
+    priority = 0.4
+
     def __init__(self, blog_pk=None, blog_slug=None):
         self.blog_pk = blog_pk
         self.blog_slug = blog_slug
 
-    def items(self):
-        qs = Post.objects.order_by('-publish_from')
+    def get_queryset(self):
+        qs = Post.objects.get_queryset()
         qs = qs.published()
+        qs = qs.defer('excerpt', 'excerpt_html')
+        qs = qs.defer('content', 'content_html')
+        return qs.order_by('-publish_from')
+
+    def items(self):
+        qs = self.get_queryset()
         if self.blog_pk is not None:
             qs = qs.filter(blog_id=self.blog_pk)
         elif self.blog_slug is not None:
@@ -126,11 +146,16 @@ class PostSitemap(FullUrlSitemap):
 
 class TagSitemap(FullUrlSitemap):
 
-    changefreq = 'weekly'
-    priority = 0.3
+    changefreq = 'monthly'
+    priority = 0.2
+
+    def get_queryset(self):
+        qs = Tag.objects.get_queryset()
+        qs = qs.defer('description')
+        return qs.order_by('-pk')
 
     def items(self):
-        qs = Tag.objects.order_by('-pk')
+        qs = self.get_queryset()
         if self.limit:
             qs = qs[:self.limit]
         return qs.iterator()
