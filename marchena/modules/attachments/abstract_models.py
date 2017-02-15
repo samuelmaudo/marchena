@@ -2,14 +2,19 @@
 
 from __future__ import division, unicode_literals
 
-import os.path
 import mimetypes
+import os.path
+try:
+    import magic
+except ImportError:
+    magic = None
 
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.formats import number_format
+from django.utils.six.moves.urllib.request import urlopen
 from django.utils.translation import ugettext_lazy as _
 
 from yepes import fields
@@ -65,6 +70,12 @@ class AbstractAttachment(Logged, Calculated):
             min_value=0,
             null=True,
             verbose_name=_('Size'))
+    mime_type = fields.CharField(
+            blank=True,
+            calculated=True,
+            max_length=31,
+            null=True,
+            verbose_name=_('MIME Type'))
     height = fields.IntegerField(
             blank=True,
             calculated=True,
@@ -116,6 +127,24 @@ class AbstractAttachment(Logged, Calculated):
             return None
         else:
             return self.image.height
+
+    def calculate_mime_type(self):
+        if self.file and magic is not None:
+            file_type = magic.from_buffer(self.file.read(1024), mime=True)
+            if file_type is not None:
+                return force_text(file_type)
+
+        file_name = self.get_file_name()
+        file_type, _ = mimetypes.guess_type(file_name)
+        if file_type is not None:
+            return force_text(file_type)
+
+        if not self.file and magic is not None:
+            file_type = magic.from_buffer(urlopen(file_name).read(1024), mime=True)
+            if file_type is not None:
+                return force_text(file_type)
+
+        return None
 
     def calculate_size(self):
         if not self.file:
@@ -183,10 +212,6 @@ class AbstractAttachment(Logged, Calculated):
             return self.file.name
     get_file_name.short_description = _('File')
 
-    def get_mime_type(self):
-        type, _ = mimetypes.guess_type(self.get_file_name())
-        return type
-
     def get_tag(self, **attrs):
         if self.is_audio:
             return self.get_audio_tag(**attrs)
@@ -196,7 +221,7 @@ class AbstractAttachment(Logged, Calculated):
             return self.get_video_tag(**attrs)
 
         if self.is_external:
-            url = self.get_file_url(**attrs)
+            url = self.get_file_url()
             if 'youtube' in url or 'vimeo' in url:
                 return self.get_iframe_tag()
 
@@ -265,8 +290,7 @@ class AbstractAttachment(Logged, Calculated):
         if file_url and file_url.endswith(settings.AUDIO_EXTENSIONS):
             return True
 
-        mime_type = self.get_mime_type()
-        if mime_type and mime_type.startswith('audio'):
+        if self.mime_type and self.mime_type.startswith('audio'):
             return True
 
         return False
@@ -281,8 +305,7 @@ class AbstractAttachment(Logged, Calculated):
         if file_url and file_url.endswith(settings.IMAGE_EXTENSIONS):
             return True
 
-        mime_type = self.get_mime_type()
-        if mime_type and mime_type.startswith('image'):
+        if self.mime_type and self.mime_type.startswith('image'):
             return True
 
         return False
@@ -293,8 +316,7 @@ class AbstractAttachment(Logged, Calculated):
         if file_url and file_url.endswith(settings.VIDEO_EXTENSIONS):
             return True
 
-        mime_type = self.get_mime_type()
-        if mime_type and mime_type.startswith('video'):
+        if self.mime_type and self.mime_type.startswith('video'):
             return True
 
         return False

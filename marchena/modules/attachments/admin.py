@@ -48,6 +48,7 @@ class AttachmentAdmin(admin.ModelAdmin):
             ],
             'fields': [
                 'get_display_size',
+                'mime_type',
                 'width',
                 'height',
             ],
@@ -80,6 +81,7 @@ class AttachmentAdmin(admin.ModelAdmin):
     readonly_fields = [
         'guid',
         'get_display_size',
+        'mime_type',
         'width',
         'height',
         'admin_audio_tag',
