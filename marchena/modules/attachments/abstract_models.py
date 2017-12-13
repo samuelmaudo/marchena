@@ -113,6 +113,10 @@ class AbstractAttachment(Logged, Calculated):
             msg = _('You must upload a file or set the URL of an external file.')
             raise ValidationError({'file': msg})
 
+    def delete(self, *args, **kwargs):
+        self.file.delete(save=False)
+        return super(AbstractAttachment, self).delete(*args, **kwargs)
+
     def get_upload_path(self, filename):
         if self.title:
             _, extension = os.path.splitext(filename)

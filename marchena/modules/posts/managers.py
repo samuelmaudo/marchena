@@ -15,58 +15,63 @@ from yepes.utils.aggregates import SumIf
 Post = LazyModel('posts', 'Post')
 PostRecord = LazyModel('posts', 'PostRecord')
 
-statements.register('update_stats', """
+statements.register('update_post_stats', """
 
-    UPDATE "{post}"
-       SET views_count = "{record}".views_count,
-           comment_count = "{record}".comment_count,
-           ping_count = "{record}".ping_count,
-           score = "{record}".score
-      FROM "{record}"
-     WHERE "{record}".post_id = "{post}".id;
+    UPDATE "{post}" AS post
+       SET post.views_count = record.views_count,
+           post.comment_count = record.comment_count,
+           post.ping_count = record.ping_count,
+           post.score = record.score
+      FROM "{record}" AS record
+     WHERE record.post_id = post.id;
 
 """, 'postgresql')
 
-statements.register('update_stats', """
+statements.register('update_post_stats', """
 
-    UPDATE `{post}`
-       SET views_count = (SELECT views_count FROM `{record}` WHERE `{record}`.post_id = `{post}`.id),
-           comment_count = (SELECT comment_count FROM `{record}` WHERE `{record}`.post_id = `{post}`.id),
-           ping_count = (SELECT ping_count FROM `{record}` WHERE `{record}`.post_id = `{post}`.id),
-           score = (SELECT score FROM `{record}` WHERE `{record}`.post_id = `{post}`.id);
-
-""", 'mysql')
-
-statements.register('update_stats', """
-
-    UPDATE `{post}`
-       SET (views_count, comment_count, ping_count, score) = (
-            SELECT views_count, comment_count, ping_count, score
-              FROM `{record}`
-             WHERE `{record}`.post_id = `{post}`.id
-           );
+    UPDATE `{post}` as post, `{record}` as record
+       SET post.views_count = record.views_count,
+           post.comment_count = record.comment_count,
+           post.ping_count = record.ping_count,
+           post.score = record.score
+     WHERE record.post_id = post.id;
 
 """, 'mysql')
 
-statements.register('update_stats', """
-
-    UPDATE `{post}`
-       SET views_count = `{record}`.views_count,
-           comment_count = `{record}`.comment_count,
-           ping_count = `{record}`.ping_count,
-           score = `{record}`.score
-      FROM `{record}`
-     WHERE `{record}`.post_id = `{post}`.id;
-
-""", 'mysql')
-
-statements.register('update_stats', """
+statements.register('update_post_stats', """
 
     UPDATE "{post}"
-       SET views_count = (SELECT views_count FROM "{record}" WHERE "{record}".post_id = "{post}".id),
-           comment_count = (SELECT comment_count FROM "{record}" WHERE "{record}".post_id = "{post}".id),
-           ping_count = (SELECT ping_count FROM "{record}" WHERE "{record}".post_id = "{post}".id),
-           score = (SELECT score FROM "{record}" WHERE "{record}".post_id = "{post}".id);
+       SET (views_count, comment_count, ping_count, score) = (
+             SELECT views_count, comment_count, ping_count, score
+               FROM "{record}"
+              WHERE "{record}".post_id = "{post}".id
+           );
+
+""", 'sqlite')
+
+statements.register('update_post_stats', """
+
+    UPDATE "{post}"
+       SET views_count = (
+             SELECT views_count
+               FROM "{record}"
+              WHERE "{record}".post_id = "{post}".id
+           ),
+           comment_count = (
+             SELECT comment_count
+               FROM "{record}"
+              WHERE "{record}".post_id = "{post}".id
+           ),
+           ping_count = (
+             SELECT ping_count
+               FROM "{record}"
+              WHERE "{record}".post_id = "{post}".id
+           ),
+           score = (
+             SELECT score
+               FROM "{record}"
+              WHERE "{record}".post_id = "{post}".id
+           );
 
 """)
 
@@ -75,12 +80,15 @@ class PostManager(DisplayableManager):
 
     def update_stats(self):
         conn = connections[self.write_db]
-        sql = statements.get_sql('update_stats', conn.vendor)
+        operation = statements.get_sql(
+            'update_post_stats',
+            conn.vendor,
+        ).format(
+            post=Post._meta.db_table,
+            record=PostRecord._meta.db_table,
+        )
         with conn.cursor() as cursor:
-            cursor.execute(sql.format(
-                post=Post._meta.db_table,
-                record=PostRecord._meta.db_table,
-            ))
+            cursor.execute(operation)
 
 
 class PostRecordManager(Manager):

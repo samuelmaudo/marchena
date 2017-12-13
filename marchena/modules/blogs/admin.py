@@ -36,6 +36,8 @@ class BlogAdmin(admin.ModelAdmin):
                 'slug',
                 'meta_description',
                 'meta_keywords',
+                'meta_index',
+                'canonical_url',
             ]
         }),
         (_('Image'), {

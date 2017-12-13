@@ -62,6 +62,8 @@ class CategoryMixin(object):
                 'slug',
                 'meta_description',
                 'meta_keywords',
+                'meta_index',
+                'canonical_url',
             ]
         }),
     ]
@@ -132,6 +134,8 @@ class PostMixin(object):
                 'slug',
                 'meta_description',
                 'meta_keywords',
+                'meta_index',
+                'canonical_url',
             ]
         }),
         (_('Visibility'), {
